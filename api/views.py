@@ -167,10 +167,12 @@ class AddArtistAPIView(APIView): # add artist
 		context = {}
 		artist = request.data.get('artist_name')
 		user_id = request.data.get('user_id')
+		artist_pic = request.data.get('artist_pic')
 		if artist and user_id:
 			data = {
 				'artist':artist,
-				'user':user_id
+				'user':user_id,
+				"artist_pic":artist_pic
 			}
 			try:
 				Artist.objects.get(user_id = user_id)
@@ -195,27 +197,7 @@ class AddArtistAPIView(APIView): # add artist
 		else:
 			context['success'] = False
 			context['error'] = 'artist_name and user_id both field is required'
-		return Response(context)
-
-class ALLArtistAPIView(APIView):
-	authentication_classes = ()
-	def get(self, request):
-		context = {}
-		try:
-			qs = Artist.objects.all()
-			if qs:
-				serializer = ArtistSerializer(qs, many=True)
-				context['success'] = True
-				context['data'] = serializer.data
-			else:
-				context['success'] = True
-				context['message'] = 'No Artist.'
-		except Exception as e:
-			context['success'] = False
-			context['message'] = 'Something went wrong. Please try again'
 		return Response(context)	
-
-	
 
 
 # class EditUserAPIView(GenericAPIView, UpdateModelMixin):
@@ -494,15 +476,23 @@ class GenreAPIView(APIView):
 	authentication_classes = ()
 	def post(self, request):
 		context = {}
+		genre_name = request.data.get('genre_name')
 		try:
-			serializer = GenreSerializer(data=request.data)
-			if serializer.is_valid():
-				serializer.save()
-				context['success'] = True
-				context['message'] = 'Genre saved'
+			if genre_name:
+				data = {
+					'genre':genre_name,
+				}
+				serializer = GenreSerializer(data=data)
+				if serializer.is_valid():
+					serializer.save()
+					context['success'] = True
+					context['message'] = 'Genre saved'
+				else:
+					context['success'] = False
+					context['error'] = serializer.errors
 			else:
 				context['success'] = False
-				context['error'] = serializer.errors
+				context['error'] = "Genre name is required."
 		except Exception as e:
 			context['success'] = False
 			context['message'] = 'Something went wrong'		
@@ -693,6 +683,10 @@ class PlaylistTrackAPIView(APIView):
 		playlist_id = request.data.get('playlist_id')
 		song_id = request.data.get('song_id')
 		
+		if not playlist_id or not song_id:
+			context['success'] = False
+			context['message'] = "playlist_id and song_id both are required field."
+			return Response(context)
 		data = {
 			'user': request.user.id,
 			'playlist': playlist_id,

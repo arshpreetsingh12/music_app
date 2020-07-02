@@ -24,7 +24,6 @@ urlpatterns = [
     path('logout', LogoutAPIView.as_view()),
     path('edit-profile', EditUserAPIView.as_view()),
     path('add-artist', AddArtistAPIView.as_view()),
-    path('all-artists', ALLArtistAPIView.as_view()),
     path('add-song', AddSongAPIView.as_view()),
     path('add-genre', GenreAPIView.as_view()),
     path('add-album', AddAlbumAPIView.as_view()),
