@@ -30,7 +30,8 @@ class RegisterAPIView(APIView):
 			'first_name': request.data.get('first_name'),
 			'username': request.data.get('username'),
 			'password': request.data.get('password'),
-			'email': request.data.get('email')
+			'email': request.data.get('email'),
+
 		}
 		serializer = UserSerializer(data=data)
 		if serializer.is_valid():
@@ -40,7 +41,8 @@ class RegisterAPIView(APIView):
 			if user:
 				gender = request.data.get('gender')
 				date_of_birth = request.data.get('date_of_birth')
-
+				is_uploader = request.data.get('is_uploader')
+				
 				if not gender:
 					user.delete()
 					context['success'] = False
@@ -52,10 +54,16 @@ class RegisterAPIView(APIView):
 					context['message'] = 'Please enter date of birth'
 					return Response(context)
 
+				uploader = False
+				if is_uploader:
+					uploader = is_uploader
+				else:
+					uploader = False
 				user_detail = UserDetail(
 					user_id=user.id,
 					gender=gender,
-					date_of_birth=date_of_birth
+					date_of_birth=date_of_birth,
+					is_uploader = uploader
 					)
 				user_detail.save()
 				print(user_detail)
