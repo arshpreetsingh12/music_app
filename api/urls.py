@@ -25,7 +25,6 @@ urlpatterns = [
     path('edit-profile', EditUserAPIView.as_view()),
     path('add-artist', AddArtistAPIView.as_view()),
     path('add-song', AddSongAPIView.as_view()),
-    path('add-genre', GenreAPIView.as_view()),
     path('add-album', AddAlbumAPIView.as_view()),
     path('get-songs', GetSongsAPIView.as_view()),
     path('delete-song', DeleteSongView.as_view()),

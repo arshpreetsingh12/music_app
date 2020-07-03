@@ -34,11 +34,8 @@ class UserSerializer(serializers.ModelSerializer):
 			password=validated_data['password'],
 			)
 		user.save()
-		print(user)
 		return user
-
 	
-		
 
 	class Meta:
 		model = User
@@ -49,31 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
 			'password',
 			)
 
-# class ProfileSerializer(serializers.ModelSerializer):
-# 	gender = serializers.CharField(source='get_gender_display', required=True)
-# 	date_of_birth = serializers.DateField(format="%Y-%m-%d", required=True)
-
-# 	print(gender)
-# 	print(date_of_birth)
-# 	def create(self, validated_data):
-		
-# 		user = self.context['user']
-# 		print(f"user: {user}")
-# 		gender = validated_data['gender']
-# 		date_of_birth = validated_data['date_of_birth']
-
-# 		profile = Profile(
-# 			user=user,
-# 			gender=gender,
-# 			date_of_birth=date_of_birth
-# 			)
-# 		profile.save()
-# 		print(profile)
-# 		return profile	
-
-# 	class Meta:
-# 		model = Profile	
-# 		fields = ('user', 'gender', 'date_of_birth')
 
 
 class ArtistSerializer(serializers.ModelSerializer):
@@ -86,11 +58,6 @@ class SongSerializer(serializers.ModelSerializer):
 		model = Song
 		fields = '__all__'	
 
-# class UserSongSerializer(serializers.ModelSerializer):
-# 	song = SongSerializer()
-# 	class Meta:
-# 		model = UserSong
-# 		fields = '__all__'
 
 class LikeArtistSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -98,7 +65,6 @@ class LikeArtistSerializer(serializers.ModelSerializer):
 		fields = '__all__'			
 
 class LikeSongSerializer(serializers.ModelSerializer):
-	# song = SongSerializer()
 	class Meta:
 		model = LikeSong	
 		fields = '__all__'	
@@ -109,13 +75,11 @@ class GenreSerializer(serializers.ModelSerializer):
 		fields = '__all__'	
 
 class AlbumSerializer(serializers.ModelSerializer):
-	# artist = ArtistSerializer()
 	class Meta:
 		model = Album	
 		fields = '__all__'
 
 class HideSongSerializer(serializers.ModelSerializer):
-	# song = SongSerializer()
 	class Meta:
 		model = HideSong	
 		fields = '__all__'
@@ -127,8 +91,6 @@ class PlaylistSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 class PlaylistTrackSerializser(serializers.ModelSerializer):
-	# song = SongSerializer(many=True)
-	# playlist= PlaylistSerializer(many=True)
 	
 	class Meta:
 		model = PlaylistTrack

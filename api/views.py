@@ -21,6 +21,11 @@ class HomeAPIView(APIView):
 		context['message'] = 'On homepage'
 		return Response(context)
 
+
+""" 
+	User can Register their account with this view.
+													""" 
+
 class RegisterAPIView(APIView):
 	authentication_classes = ()
 	def post(self, request):
@@ -37,11 +42,11 @@ class RegisterAPIView(APIView):
 		if serializer.is_valid():
 
 			user = serializer.save()
-			print('user saved')
 			if user:
 				gender = request.data.get('gender')
 				date_of_birth = request.data.get('date_of_birth')
 				is_uploader = request.data.get('is_uploader')
+				is_normal = request.data.get('is_normal')
 				
 				if not gender:
 					user.delete()
@@ -54,16 +59,31 @@ class RegisterAPIView(APIView):
 					context['message'] = 'Please enter date of birth'
 					return Response(context)
 
+				if not is_uploader and not is_normal:
+					user.delete()
+					context['success'] = False
+					context['message'] = 'Please specify user role'
+					return Response(context)
+
+
 				uploader = False
 				if is_uploader:
 					uploader = is_uploader
 				else:
 					uploader = False
+
+				normal = True
+				if is_normal:
+					normal = is_normal
+				else:
+					normal = False
+
 				user_detail = UserDetail(
 					user_id=user.id,
 					gender=gender,
 					date_of_birth=date_of_birth,
-					is_uploader = uploader
+					is_uploader = uploader,
+					is_normal = normal
 					)
 				user_detail.save()
 				print(user_detail)
@@ -76,6 +96,8 @@ class RegisterAPIView(APIView):
 
 		return Response(context)	
 
+
+""" Login View """ 
 class LoginAPIView(ObtainAuthToken):
 	authentication_classes = ()
 	def post(self, request):
@@ -86,17 +108,19 @@ class LoginAPIView(ObtainAuthToken):
 			password = request.data.get('password')
 			if not username or not password:
 				context['success'] = False
-				context['message'] = 'Both fields are required'
+				context['message'] = 'username and password both fields are required'
 				return Response(context)
 			user = authenticate(username=username, password=password)
-			print(user)
+
 			if user:
 				token, created = Token.objects.get_or_create(user=user)
 				context['success'] = True
+			
 				if user.is_superuser or user.is_staff:
 					context['is_superuser'] = True
 				else:
 					context['is_superuser']	= False
+			
 				context['message'] = 'Login Successful'
 				context['data'] = {'token': token.key}
 				user_data = {
@@ -106,14 +130,19 @@ class LoginAPIView(ObtainAuthToken):
 				}
 				context['user'] = user_data
 				login(request, user)
+		
 			else:
 				context['success'] = False
-				context['message'] = 'Invalid credentials'
+				context['message'] = 'Invalid credentials.'
+		
 		except Exception as e:
-			# raise euserserializser with update method
 			context['success'] = False
 			context['message'] = 'Something went wrong, Please try again'
 		return Response(context)
+
+""" 
+	Logged out view.
+    				 """ 
 
 class LogoutAPIView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -131,7 +160,9 @@ class LogoutAPIView(APIView):
 		context['message'] = 'You have been logged out'
 		return Response(context)
 			
-
+""" 
+	Logged in user can edit their profile.
+    						  			   """ 
 class EditUserAPIView(APIView):
 	permissions_classes = [IsAuthenticated]
 	def put(self, request):
@@ -139,7 +170,7 @@ class EditUserAPIView(APIView):
 
 		if not request.data:
 			context['success'] = False	
-			context['message'] = 'Please enter detail you want to change' 
+			context['message'] = 'Please enter detail you want to change.' 
 			return Response(context)
 
 		date_of_birth = request.data.get('date_of_birth')
@@ -160,7 +191,7 @@ class EditUserAPIView(APIView):
 				serializer.save()
 				print(serializer)	
 				context['success'] = True	
-				context['message'] = 'Detail changed' 
+				context['message'] = 'Profile successfully updated.' 
 			else:
 				context['success'] = False	
 				context['error'] = serializer.errors 
@@ -169,7 +200,12 @@ class EditUserAPIView(APIView):
 			context['message'] = str(e)
 		return Response(context)				
 
-class AddArtistAPIView(APIView): # add artist
+
+""" 
+	This view for add artist.
+    						  """ 
+
+class AddArtistAPIView(APIView):
 	authentication_classes = ()
 	def post(self, request):
 		context = {}
@@ -195,7 +231,7 @@ class AddArtistAPIView(APIView): # add artist
 					serializer.save()
 					print(serializer)
 					context['success'] = True
-					context['message'] = 'Artist saved'	
+					context['message'] = 'Artist successfully saved.'	
 				else:
 					context['success'] = False
 					context['error'] = serializer.errors	
@@ -204,31 +240,14 @@ class AddArtistAPIView(APIView): # add artist
 				context['error'] = 'Something went wrong. Please try again.'
 		else:
 			context['success'] = False
-			context['error'] = 'artist_name and user_id both field is required'
+			context['error'] = 'artist_name and user_id both fields are required'
 		return Response(context)	
 
 
-# class EditUserAPIView(GenericAPIView, UpdateModelMixin):
-# 	permissions_classes = [IsAuthenticated]
-# 	queryset = User.objects.all()
-# 	serializer_class = UserSerializer
-# 	def put(self, request):
-# 		context = {}
-# 		# username = request.data.get('username')
-# 		try:
-# 			return self.partial_update(request.user, data=request.data)
-# 			# print(request.user)
-# 			# serializer = UserSerializer(request.user, data=request.data, partial=True)
-# 			# serializer.is_valid(raise_exception=True)
-# 			# serializer.save()
-# 			# print(serializer)	
-# 		except Exception as e:
-# 			raise e
-# 		return Response(context)				
-
-
-
-
+""" 
+	This view for add song. 
+    Only uploader can add songs. 
+    							""" 
 class AddSongAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
@@ -236,51 +255,40 @@ class AddSongAPIView(APIView):
 		genre_id = request.data.get('genre_id')
 		album_id = request.data.get('album_id')
 		song = request.data.get('song')
-		print(genre_id,album_id,'=======================')
-		category_id = request.data.get('category_id')
+
 		if not genre_id or not album_id or not song:
 			context['success'] = False
-			context['message'] = 'Required fields are missing.'
-			return Response(context)
-
-		# if not genre_id:
-		# 	context['success'] = False
-		# 	context['message'] = 'genre_id is required.'
-		# 	return Response(context)
-	
-		# if not album_id:
-		# 	context['success'] = False
-		# 	return Response(context)
-		# 	context['message'] = 'album_id is required.'
-		# 	return Response(context)	
-		
-		# if not song:
-		# 	context['success'] = False
-		# 	context['message'] = 'song is required.'
-		# 	return Response(context)	
+			context['message'] = 'album_id, genre_id and song are required fields.'
+			return Response(context)	
 
 		try:
-			data = {
-				'user': request.user.id,
-				'genre': genre_id,
-				'song': song,
-				'album': album_id,
-				'category':category_id
-			}
-			serializer = SongSerializer(data=data)
-			if serializer.is_valid():
-				serializer.save()
-				context['success'] = True
-				context['message'] = 'Song added'
+			user = UserDetail.objects.get(user_id = request.user.id)
+			if user.is_uploader:
+				data = {
+					'user': request.user.id,
+					'genre': genre_id,
+					'song': song,
+					'album': album_id
+				}
+				serializer = SongSerializer(data=data)
+				if serializer.is_valid():
+					serializer.save()
+					context['success'] = True
+					context['message'] = 'Song successfully added.'
+				else:
+					context['success'] = False
+					context['error'] = serializer.errors
 			else:
 				context['success'] = False
-				context['error'] = serializer.errors
+				context['error'] = "You don't have permission to add song."
 		except Exception as e:
 			context['success'] = False
 			context['message'] = 'Something went wrong. Please try again'
 		return Response(context)	
 
-### delete song #####
+""" 
+	This view for delete song. 
+    							""" 
 class DeleteSongView(APIView):
 	permission_classes = [IsAuthenticated]
 	def delete(self, request):
@@ -291,7 +299,7 @@ class DeleteSongView(APIView):
 			    obj.delete = True
 			    obj.save()
 			    status = True
-			    message = 'Successfully deleted'
+			    message = 'Song successfully deleted.'
 			else:
 				status = False
 				message = 'Id is required.'
@@ -305,7 +313,10 @@ class DeleteSongView(APIView):
 		return Response(dictV)
 
 
-
+"""
+	This view for like artist.
+	Logged in user can like any artist.
+									    """
 class LikeArtistAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
@@ -331,7 +342,7 @@ class LikeArtistAPIView(APIView):
 				if serializer.is_valid():
 					serializer.save()
 					context['success'] = True
-					context['message'] = 'Liked artist'
+					context['message'] = 'Artist successfully liked.'
 				else:
 					context['success'] = False
 					context['error'] = serializer.errors
@@ -343,6 +354,10 @@ class LikeArtistAPIView(APIView):
 			context['message'] = 'Artist id is required.'
 		return Response(context)
 
+"""
+	This view for Logged in user's liked artist list.
+									                  """
+
 class LikedArtistListAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
@@ -352,7 +367,7 @@ class LikedArtistListAPIView(APIView):
 			qs = LikeArtist.objects.filter(user_id=user_id, like = True)
 			if not qs:
 				context['success'] = False
-				context['data'] = "User don't have liked artists"		
+				context['data'] = "User don't have liked artists."		
 				return Response(context)
 			serializer = LikeArtistSerializer(qs, many=True)
 			context['success'] = True
@@ -362,6 +377,10 @@ class LikedArtistListAPIView(APIView):
 			context['message'] = 'Something went wrong'		
 		return Response(context)	
 
+
+"""
+	This view for liked artist's songs.
+										"""
 class SongsOfLikedArtistAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
@@ -383,52 +402,11 @@ class SongsOfLikedArtistAPIView(APIView):
 			context['success'] = False
 			context['message'] = 'Something went wrong'		
 		return Response(context)					
-
-
-# viewer adding song
-# class UserAddSongAPIView(APIView):
-# 	permission_classes =  [IsAuthenticated]
-# 	def post(self, request):
-# 		context = {}
-# 		song_id = request.data.get('song_id')
-# 		data = {
-# 			'user':request.user.id,
-# 			'song': song_id
-# 		}
-# 		try:
-# 			serializer = UserSongSerializer(data=data)
-# 			if serializer.is_valid():
-# 				serializer.save()
-# 				context['success'] = True
-# 				context['message'] = 'Song added'
-# 			else:
-# 				context['success'] = False
-# 				context['error'] = serializer.errors
-# 		except Exception as e:
-# 			context['success'] = False
-# 			context['message'] = 'Something went wrong. Please try again'
-# 		return Response(context)
-
-# list of viewer song
-class UserSongListAPIView(APIView):
-	permission_classes = [IsAuthenticated]
-	def get(self, request):
-		context = {}
-		user_id = request.user.id
-		try:
-			qs = UserSong.objects.filter(user_id=user_id)
-			if not qs:
-				context['success'] = False
-				context['data'] = "User don't have songs"		
-				return Response(context)
-			serializer = UserSongSerializer(qs, many=True)
-			context['success'] = True
-			context['data'] = serializer.data		
-		except Exception as e:
-			context['success'] = False
-			context['message'] = 'Something went wrong'		
-		return Response(context)		
-
+	
+"""
+	This view for Like song.
+	Logged in user can like any song.
+									   """
 class LikeSongAPIView(APIView):
 	permissions_classes = [IsAuthenticated]
 	def post(self, request):
@@ -447,7 +425,7 @@ class LikeSongAPIView(APIView):
 				if serializer.is_valid():
 					serializer.save()
 					context['success'] = True
-					context['message'] = 'Song liked'
+					context['message'] = 'Song successfully liked.'
 				else:
 					context['success'] = False
 					context['error'] = serializer.errors
@@ -461,6 +439,10 @@ class LikeSongAPIView(APIView):
 			context['message'] = 'Something went wrong'		
 		return Response(context)
 
+
+""" 
+	List of all liked songs of logged in user.
+      											"""
 class AllLikedSongsAPIView(APIView):
 	permissions_classes = [IsAuthenticated]
 	def get(self, request):
@@ -480,34 +462,12 @@ class AllLikedSongsAPIView(APIView):
 			context['message'] = 'Something went wrong'		
 		return Response(context)
 
-class GenreAPIView(APIView):
-	authentication_classes = ()
-	def post(self, request):
-		context = {}
-		genre_name = request.data.get('genre_name')
-		try:
-			if genre_name:
-				data = {
-					'genre':genre_name,
-				}
-				serializer = GenreSerializer(data=data)
-				if serializer.is_valid():
-					serializer.save()
-					context['success'] = True
-					context['message'] = 'Genre saved'
-				else:
-					context['success'] = False
-					context['error'] = serializer.errors
-			else:
-				context['success'] = False
-				context['error'] = "Genre name is required."
-		except Exception as e:
-			context['success'] = False
-			context['message'] = 'Something went wrong'		
-		return Response(context)
 
+"""
+	This view for add album.Only uploader can add album.
+							                             """
 class AddAlbumAPIView(APIView):
-	authentication_classes = ()
+	permission_classes = [IsAuthenticated]
 	def post(self, request):
 		context = {}
 		artist_id = request.data.get('artist_id')
@@ -515,28 +475,38 @@ class AddAlbumAPIView(APIView):
 		album_pic = request.data.get('album_pic')
 
 		try:
-			if artist_id and album:
-				data = {
-					'artist': artist_id,
-					'album': album,
-					'album_pic': album_pic
-				}
-				serializer = AlbumSerializer(data=data)
-				if serializer.is_valid():
-					serializer.save()
-					context['success'] = True
-					context['message'] = 'Album saved'
+			user = UserDetail.objects.get(user_id = request.user.id)
+			if user.is_uploader: 
+				if artist_id and album:
+					data = {
+						'artist': artist_id,
+						'album': album,
+						'album_pic': album_pic
+					}
+					serializer = AlbumSerializer(data=data)
+					if serializer.is_valid():
+						serializer.save()
+						context['success'] = True
+						context['message'] = 'Album successfully saved.'
+					else:
+						context['success'] = False
+						context['error'] = serializer.errors
 				else:
 					context['success'] = False
-					context['error'] = serializer.errors
+					context['error'] = "Artist id and album field is required."
 			else:
 				context['success'] = False
-				context['error'] = "Artist id and album field is required."
+				context['error'] = "You don't have permission to add album."
 		except Exception as e:
 			context['success'] = False
-			context['message'] = 'Something went wrong'		
+			context['message'] = 'Something went wrong.'		
 		return Response(context)
 
+
+"""
+	This view for get songs.
+	User can get songs according to artist, album or genre.
+							                         		 """
 class GetSongsAPIView(APIView):
 	authentication_classes = ()
 	def post(self, request):		
@@ -563,6 +533,10 @@ class GetSongsAPIView(APIView):
 			context['message'] = 'Something went wrong'		
 		return Response(context)
 
+
+"""
+	Send login link.
+				    """
 class SendLoginLinkAPIView(APIView):
 	authentication_classes = ()
 	def post(self, request):
@@ -606,22 +580,23 @@ def mailSend(subject, recipient_list, message="", html_message=""):
 		email_from = settings.EMAIL_HOST_USER
 		print(html_message)
 		send_mail( subject, message, email_from, recipient_list, html_message=html_message )
-		print('------mail sent------')
 		return True
 	except Exception as e:
-		print('-------error mail sending-------')
 		return False	
 
+
+"""
+	This view for hide songs.
+							  """
 class HideSongAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
 		context = {}
 		song_id = request.data.get('song_id')
-		hide = int(request.data.get('hide'))
 		data = {
 			'user':request.user.id,
 			'song': song_id,
-			'hide': hide
+			'hide': True
 		}
 
 		try:
@@ -641,6 +616,10 @@ class HideSongAPIView(APIView):
 			context['message'] = "Something went wrong, Please try again"	
 		return Response(context)
 
+"""
+	This view for get hidden song's list of logged in user.
+							     							"""
+
 class HiddenSongsListAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
@@ -655,6 +634,11 @@ class HiddenSongsListAPIView(APIView):
 			context['message'] = "Something went wrong, Please try again"	
 		return Response(context)	
 
+
+"""
+	This view for create Playlist.
+	Logged in user can create their playlist.
+							      			   """
 class CreatePlaylistAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
@@ -683,6 +667,11 @@ class CreatePlaylistAPIView(APIView):
 			context['success'] = False
 			context['message'] = "Playlist name is required."	
 		return Response(context)	
+
+
+"""
+	This view for add songs in Playlist.
+							      	     """
 
 class PlaylistTrackAPIView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -715,6 +704,10 @@ class PlaylistTrackAPIView(APIView):
 			context['message'] = "Something went wrong, Please try again"	
 		return Response(context)
 
+"""
+	This view for get list of songs from playlist.
+							      	     		   """
+
 class ListSongsByPlaylistAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
@@ -742,6 +735,10 @@ class ListSongsByPlaylistAPIView(APIView):
 
 ########## for logged in artist user ############
 
+"""
+	This view for get logged in artist's song list.
+							      	     		    """
+
 class ArtistSongList(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
@@ -760,7 +757,9 @@ class ArtistSongList(APIView):
 			dictV['data'] = "Some thing went wrong."
 		return Response(dictV)
 
-
+"""
+	Logged in artist can delete their songs. 
+							      	   	     """
 class DeleteArtistSong(APIView):
 	permission_classes = [IsAuthenticated]
 	def delete(self, request):
@@ -785,7 +784,9 @@ class DeleteArtistSong(APIView):
 			dictV['message'] = "Something went wrong, Please try again"
 		return Response(dictV)
 
-
+"""
+	All Artist's list.
+					   """
 class ArtistList(APIView):
 	authentication_classes = ()
 	def get(self, request):
@@ -803,6 +804,10 @@ class ArtistList(APIView):
 			dictV['success'] = False
 			dictV['data'] = "Some thing went wrong."
 		return Response(dictV)
+
+"""
+	All User's list.
+					   """
 
 class UserList(APIView):
 	permission_classes = [IsAuthenticated]
@@ -825,6 +830,9 @@ class UserList(APIView):
 
 ################### For normal user  ##########################
 
+"""
+	Logged in user can follow any user.
+					   					"""
 
 class FollowUser(APIView):
 	permission_classes = [IsAuthenticated]
@@ -869,7 +877,9 @@ class FollowUser(APIView):
 		return Response(dictV)
 
 
-# Logged in user's follower list
+"""
+	Logged in user's follower list.
+					   				"""
 class MyFollowerList(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self,request):
@@ -889,7 +899,9 @@ class MyFollowerList(APIView):
 		return Response(dictV)
 
 
-# Logged in user's following list
+"""
+ 	Logged in user's following list
+ 									 """
 class MyFollowingList(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self,request):

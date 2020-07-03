@@ -8,6 +8,7 @@ GENDER_CHOICES = (
 	) 
 
 
+""" This table for user's extra details. """
 class UserDetail(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	date_of_birth = models.DateField()
@@ -17,7 +18,10 @@ class UserDetail(models.Model):
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+	def __str__(self):
+		return self.user.first_name
 
+""" When uploader add any artist that object saved in this table. """
 class Artist(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 	artist = models.CharField(max_length=50)
@@ -25,6 +29,10 @@ class Artist(models.Model):
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+	def __str__(self):
+		return self.artist
+
+""" When uploader upload any album that object saved in this table  """
 class Album(models.Model):
 	artist = models.ForeignKey(Artist, blank=True, null=True, on_delete=models.CASCADE)
 	album = models.CharField(max_length=50)
@@ -32,37 +40,29 @@ class Album(models.Model):
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+	def __str__(self):
+		return self.album
 
+""" Admin can add Genre for songs """
 class Genre(models.Model):
 	genre = models.CharField(max_length=50)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+	def __str__(self):
+		return self.genre
 
-class Category(models.Model):
-	category_name = models.CharField(max_length=50)
-	description = models.CharField(max_length=500)	
-	image = models.ImageField(upload_to = "category", blank=True, null=True)
-	created_at  = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now=True)
-
-
+""" When uploader upload any song that object saved in this table """
 class Song(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 	genre = models.ForeignKey(Genre, blank=True, null=True, on_delete=models.CASCADE)	
 	album = models.ForeignKey(Album, blank=True, null=True, on_delete=models.CASCADE)
-	category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE)
 	song = models.FileField(upload_to = "song")
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	delete = models.BooleanField(default = False)
 
-# class UserSong(models.Model):
-# 	user = models.ForeignKey(User, on_delete=models.CASCADE)
-# 	song = models.OneToOneField(Song, on_delete=models.CASCADE)
-# 	created_at  = models.DateTimeField(auto_now_add=True)
-# 	updated_at = models.DateTimeField(auto_now=True)
-
+""" When user like any artist that object saved in this table """
 class LikeArtist(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
@@ -70,7 +70,10 @@ class LikeArtist(models.Model):
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+	def __str__(self):
+		return self.artist.artist
 
+""" When user like any song that object saved in this table """
 class LikeSong(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	song = models.ForeignKey(Song, on_delete=models.CASCADE)
@@ -78,6 +81,8 @@ class LikeSong(models.Model):
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+
+""" When user hide any song that object saved in this table """
 class HideSong(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	song = models.ForeignKey(Song, on_delete=models.CASCADE)
@@ -85,12 +90,19 @@ class HideSong(models.Model):
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+
+""" When user create their playlist that object saved in this table """
 class Playlist(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	playlist = models.CharField(max_length=50)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+	def __str__(self):
+		return self.playlist
+
+
+""" When user add song in their playlist that object saved in this table """
 class PlaylistTrack(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	song = models.ForeignKey(Song, on_delete=models.CASCADE)
@@ -110,3 +122,6 @@ class Follwer(models.Model):
 	is_follwed = models.BooleanField(default = False)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.follower_user.first_name
