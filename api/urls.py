@@ -23,12 +23,10 @@ urlpatterns = [
     path('login', LoginAPIView.as_view()),
     path('logout', LogoutAPIView.as_view()),
     path('edit-profile', EditUserAPIView.as_view()),
-    path('add-artist', AddArtistAPIView.as_view()),
-    path('add-song', AddSongAPIView.as_view()),
+    path('artists', AddArtistAPIView.as_view()),
+    path('song-view', SongsAPIView.as_view()),
     path('add-album', AddAlbumAPIView.as_view()),
     path('get-songs', GetSongsAPIView.as_view()),
-    path('delete-song', DeleteSongView.as_view()),
-
 
     path('send-login-link', SendLoginLinkAPIView.as_view()),
     
@@ -36,24 +34,18 @@ urlpatterns = [
     # path('user-song-list', UserSongListAPIView.as_view()),
 
     path('like-artist', LikeArtistAPIView.as_view()),
-    path('liked-artist-list', LikedArtistListAPIView.as_view()),
     path('songs-liked-artist', SongsOfLikedArtistAPIView.as_view()),
             
 
     path('like-song', LikeSongAPIView.as_view()),
-    path('all-liked-songs', AllLikedSongsAPIView.as_view()),
     path('hide-song', HideSongAPIView.as_view()),
-    path('list-hidden-songs', HiddenSongsListAPIView.as_view()),
     path('create-playlist', CreatePlaylistAPIView.as_view()),
     path('song-to-playlist', PlaylistTrackAPIView.as_view()),
     path('songs-by-playlist', ListSongsByPlaylistAPIView.as_view()),
 
     path('artist-song', ArtistSongList.as_view()),
-    path('delete-artist-song', DeleteArtistSong.as_view()),
-    path('artist-list', ArtistList.as_view()),
 
     path('user-list', UserList.as_view()),
-    path('follow-user', FollowUser.as_view()),
     path('my-follower', MyFollowerList.as_view()),
     path('my-following', MyFollowingList.as_view()),
 
