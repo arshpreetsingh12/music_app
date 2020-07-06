@@ -45,7 +45,7 @@ class RegisterAPIView(APIView):
 			if user:
 				gender = request.data.get('gender')
 				date_of_birth = request.data.get('date_of_birth')
-				is_uploader = request.data.get('is_uploader')
+				is_artist = request.data.get('is_artist')
 				is_normal = request.data.get('is_normal')
 				
 				if not gender:
@@ -59,7 +59,7 @@ class RegisterAPIView(APIView):
 					context['message'] = 'Please enter date of birth'
 					return Response(context)
 
-				if not is_uploader and not is_normal:
+				if not is_artist and not is_normal:
 					user.delete()
 					context['success'] = False
 					context['message'] = 'Please specify user role'
@@ -67,8 +67,8 @@ class RegisterAPIView(APIView):
 
 
 				uploader = False
-				if is_uploader:
-					uploader = is_uploader
+				if is_artist:
+					uploader = is_artist
 				else:
 					uploader = False
 
@@ -82,7 +82,7 @@ class RegisterAPIView(APIView):
 					user_id=user.id,
 					gender=gender,
 					date_of_birth=date_of_birth,
-					is_uploader = uploader,
+					is_artist = uploader,
 					is_normal = normal
 					)
 				user_detail.save()
@@ -118,17 +118,24 @@ class LoginAPIView(ObtainAuthToken):
 			
 				if user.is_superuser or user.is_staff:
 					context['is_superuser'] = True
-				else:
-					context['is_superuser']	= False
-			
+
+				user_obj = UserDetail.objects.get(user = user)
+
+				if user_obj.is_normal and not user_obj.is_artist:
+					artist_users = UserDetail.objects.filter(is_artist = True)
+					serializer = UserDetailSerializer(artist_users, many=True)
+					context['user'] = serializer.data
+				
+				if user_obj.is_artist:
+					user_data = {
+						'username': user.username,
+						'full_name': user.first_name,
+						'email': user.email,
+						'is_artist':user_obj.is_artist
+					}
+					context['user'] = user_data
 				context['message'] = 'Successfully login.'
 				context['data'] = {'token': token.key}
-				user_data = {
-					'username': user.username,
-					'full_name': user.first_name,
-					'email': user.email
-				}
-				context['user'] = user_data
 				login(request, user)
 		
 			else:
@@ -200,68 +207,6 @@ class EditUserAPIView(APIView):
 			context['message'] = str(e)
 		return Response(context)				
 
-
-""" 
-	This view for add artist.
-    						  """ 
-
-class AddArtistAPIView(APIView):
-	authentication_classes = ()
-
-	def get(self, request):
-		dictV = {}
-		try:
-			all_artist = Artist.objects.all()
-			if all_artist:
-				serializer = ArtistSerializer(all_artist, many=True)
-				dictV['success'] = True
-				dictV['data'] = serializer.data
-			else:
-				dictV['success'] = True
-				dictV['data'] = 'No artist found.'
-		except Exception as e:
-			dictV['success'] = False
-			dictV['data'] = "Some thing went wrong."
-		return Response(dictV)
-
-
-	def post(self, request):
-		context = {}
-		artist = request.data.get('artist_name')
-		user_id = request.data.get('user_id')
-		artist_pic = request.data.get('artist_pic')
-		if artist and user_id:
-			data = {
-				'artist':artist,
-				'user':user_id,
-				"artist_pic":artist_pic
-			}
-			try:
-				Artist.objects.get(user_id = user_id)
-				context['success'] = False
-				context['error'] = 'Artist already exist.'
-				return Response(context)
-			except Artist.DoesNotExist:
-				pass
-			try:
-				serializer = ArtistSerializer(data = data)
-				if serializer.is_valid():
-					serializer.save()
-					print(serializer)
-					context['success'] = True
-					context['message'] = 'Artist successfully added.'	
-				else:
-					context['success'] = False
-					context['error'] = serializer.errors	
-			except Exception as e:
-				context['success'] = False
-				context['error'] = 'Something went wrong. Please try again.'
-		else:
-			context['success'] = False
-			context['error'] = 'artist_name and user_id both fields are required.'
-		return Response(context)	
-
-
 """ 
 	This view for add song. 
     Only uploader can add songs. 
@@ -282,7 +227,7 @@ class SongsAPIView(APIView):
 
 		try:
 			user = UserDetail.objects.get(user_id = request.user.id)
-			if user.is_uploader:
+			if user.is_artist:
 				data = {
 					'user': request.user.id,
 					'genre': genre_id,
@@ -309,7 +254,7 @@ class SongsAPIView(APIView):
 		data = request.data.get('id')
 		try:
 			user = UserDetail.objects.get(user_id = request.user.id)
-			if user.is_uploader:
+			if user.is_artist:
 				if data:
 				    obj = Song.objects.get(pk=data, delete=False)
 				    obj.delete = True
@@ -361,7 +306,7 @@ class LikeArtistAPIView(APIView):
 		artist_id= request.data.get('artist_id')
 		if artist_id:
 			try:
-				LikeArtist.objects.get(artist = artist_id, user_id = request.user.id, like = True)
+				LikeArtist.objects.get(artist_id = artist_id, user_id = request.user.id, like = True)
 				context['success'] = False
 				context['message'] = 'You already liked this artist.'
 				return Response(context)
@@ -485,7 +430,7 @@ class AddAlbumAPIView(APIView):
 
 		try:
 			user = UserDetail.objects.get(user_id = request.user.id)
-			if user.is_uploader: 
+			if user.is_artist: 
 				if artist_id and album:
 					data = {
 						'artist': artist_id,
@@ -767,7 +712,7 @@ class ArtistSongList(APIView):
 	def get(self, request):
 		dictV = {}
 		try:
-			songs = Song.objects.filter(album__artist__user_id = request.user.id, delete = False)
+			songs = Song.objects.filter(album__artist_id = request.user.id, delete = False)
 			if songs:
 				serializer = SongSerializer(songs, many=True)
 				dictV['success'] = True
@@ -786,7 +731,7 @@ class ArtistSongList(APIView):
 		song_id = request.data.get('song_id')
 		try:
 			if song_id:
-				song_obj = Song.objects.get(album__artist__user_id = request.user.id, delete = False, id = song_id)
+				song_obj = Song.objects.get(album__artist_id = request.user.id, delete = False, id = song_id)
 				song_obj.delete = True
 				song_obj.save()
 				dictV['success'] = True

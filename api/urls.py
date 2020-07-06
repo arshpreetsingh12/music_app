@@ -23,7 +23,7 @@ urlpatterns = [
     path('login', LoginAPIView.as_view()),
     path('logout', LogoutAPIView.as_view()),
     path('edit-profile', EditUserAPIView.as_view()),
-    path('artists', AddArtistAPIView.as_view()),
+    # path('artists', AddArtistAPIView.as_view()),
     path('song-view', SongsAPIView.as_view()),
     path('add-album', AddAlbumAPIView.as_view()),
     path('get-songs', GetSongsAPIView.as_view()),
