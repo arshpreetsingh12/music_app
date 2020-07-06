@@ -9,7 +9,7 @@ from rest_framework.mixins import UpdateModelMixin
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import login, logout, authenticate
-
+from rest_framework.authentication import TokenAuthentication
 from .serializers import *
 from rest_framework import generics
 
@@ -152,6 +152,7 @@ class LoginAPIView(ObtainAuthToken):
     				 """ 
 
 class LogoutAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
 		context = {}
@@ -171,6 +172,7 @@ class LogoutAPIView(APIView):
 	Logged in user can edit their profile.
     						  			   """ 
 class EditUserAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permissions_classes = [IsAuthenticated]
 	def put(self, request):
 		context = {}
@@ -212,6 +214,7 @@ class EditUserAPIView(APIView):
     Only uploader can add songs. 
     							""" 
 class SongsAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
@@ -283,6 +286,7 @@ class SongsAPIView(APIView):
 	Logged in user can like any artist.
 									    """
 class LikeArtistAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
@@ -342,6 +346,7 @@ class LikeArtistAPIView(APIView):
 	This view for liked artist's songs.
 										"""
 class SongsOfLikedArtistAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
 		context = {}
@@ -368,11 +373,13 @@ class SongsOfLikedArtistAPIView(APIView):
 	Logged in user can like any song.
 									   """
 class LikeSongAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permissions_classes = [IsAuthenticated]
 
 	def get(self, request):
 		context = {}
 		user_id = request.user.id
+		print(user_id,'===========user_id')
 		try:
 			qs = LikeSong.objects.filter(user_id=user_id, like = True)
 			if not qs:
@@ -422,6 +429,7 @@ class LikeSongAPIView(APIView):
 	This view for add album.Only uploader can add album.
 							                             """
 class AddAlbumAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
 		context = {}
@@ -463,7 +471,8 @@ class AddAlbumAPIView(APIView):
 	User can get songs according to artist, album or genre.
 							                         		 """
 class GetSongsAPIView(APIView):
-	authentication_classes = ()
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
 	def post(self, request):		
 		context = {}
 		artist_id = request.data.get('artist_id')
@@ -493,7 +502,8 @@ class GetSongsAPIView(APIView):
 	Send login link.
 				    """
 class SendLoginLinkAPIView(APIView):
-	authentication_classes = ()
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
 	def post(self, request):
 		context = {}
 		email = request.data.get('email')
@@ -544,6 +554,7 @@ def mailSend(subject, recipient_list, message="", html_message=""):
 	This view for hide songs.
 							  """
 class HideSongAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
@@ -590,6 +601,7 @@ class HideSongAPIView(APIView):
 	Logged in user can create their playlist.
 							      			   """
 class CreatePlaylistAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
@@ -641,6 +653,7 @@ class CreatePlaylistAPIView(APIView):
 							      	     """
 
 class PlaylistTrackAPIView(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
@@ -677,7 +690,10 @@ class PlaylistTrackAPIView(APIView):
 							      	     		   """
 
 class ListSongsByPlaylistAPIView(APIView):
+
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
+
 	def post(self, request):
 		context = {}
 		playlist_id = request.data.get('playlist_id')
@@ -708,6 +724,8 @@ class ListSongsByPlaylistAPIView(APIView):
 							      	     		    """
 
 class ArtistSongList(APIView):
+
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
@@ -754,6 +772,8 @@ class ArtistSongList(APIView):
 					   """
 
 class UserList(APIView):
+
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 	def get(self,request):
 		dictV = {}
@@ -778,7 +798,9 @@ class UserList(APIView):
 	Logged in user's follower list.
 					   				"""
 class MyFollowerList(APIView):
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
+
 	def get(self,request):
 		dictV = {}
 		try:
@@ -800,6 +822,8 @@ class MyFollowerList(APIView):
  	Logged in user's following list
  									 """
 class MyFollowingList(APIView):
+
+	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 	def get(self,request):
 		dictV = {}
