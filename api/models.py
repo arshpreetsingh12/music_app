@@ -13,7 +13,7 @@ class UserDetail(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	date_of_birth = models.DateField()
 	gender = models.CharField(max_length=50, choices=GENDER_CHOICES)
-	is_uploader = models.BooleanField(default=False)
+	is_artist = models.BooleanField(default=False)
 	is_normal = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -21,20 +21,10 @@ class UserDetail(models.Model):
 	def __str__(self):
 		return self.user.first_name
 
-""" When uploader add any artist that object saved in this table. """
-class Artist(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-	artist = models.CharField(max_length=50)
-	artist_pic = models.ImageField(upload_to = "artist",blank=True, null=True)
-	created_at  = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now=True)
-
-	def __str__(self):
-		return self.artist
 
 """ When uploader upload any album that object saved in this table  """
 class Album(models.Model):
-	artist = models.ForeignKey(Artist, blank=True, null=True, on_delete=models.CASCADE)
+	artist = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
 	album = models.CharField(max_length=50)
 	album_pic = models.ImageField(blank=True, null=True)
 	created_at  = models.DateTimeField(auto_now_add=True)
@@ -64,8 +54,8 @@ class Song(models.Model):
 
 """ When user like any artist that object saved in this table """
 class LikeArtist(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+	user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
+	artist = models.ForeignKey(User, related_name='artist', null= True, blank = True, on_delete=models.CASCADE)
 	like = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)

@@ -47,11 +47,15 @@ class UserSerializer(serializers.ModelSerializer):
 			)
 
 
-
-class ArtistSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = Artist
+		model = UserDetail
 		fields = '__all__'
+
+# class ArtistSerializer(serializers.ModelSerializer):
+# 	class Meta:
+# 		model = Artist
+# 		fields = '__all__'
 
 class SongSerializer(serializers.ModelSerializer):
 	class Meta:
