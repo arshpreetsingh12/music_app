@@ -14,7 +14,7 @@ class UserDetail(models.Model):
 	date_of_birth = models.DateField()
 	gender = models.CharField(max_length=50, choices=GENDER_CHOICES)
 	is_artist = models.BooleanField(default=False)
-	is_normal = models.BooleanField(default=False)
+	is_listener = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -42,6 +42,22 @@ class Genre(models.Model):
 	def __str__(self):
 		return self.genre
 
+
+""" This table for artist's extra details. """
+class ArtistInfo(models.Model):
+	info = models.ForeignKey(UserDetail, on_delete=models.CASCADE)
+	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+	country = models.CharField(max_length=50)
+	website = models.CharField(max_length=250)
+	company_label = models.CharField(max_length=500)
+	social_media = models.CharField(max_length=500)
+	created_at  = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.info.user.first_name
+
+		
 """ When uploader upload any song that object saved in this table """
 class Song(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -61,7 +77,7 @@ class LikeArtist(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return self.artist.artist
+		return self.user.first_name
 
 """ When user like any song that object saved in this table """
 class LikeSong(models.Model):
