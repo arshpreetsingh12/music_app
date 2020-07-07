@@ -46,8 +46,15 @@ class RegisterAPIView(APIView):
 				gender = request.data.get('gender')
 				date_of_birth = request.data.get('date_of_birth')
 				is_artist = request.data.get('is_artist')
-				is_normal = request.data.get('is_normal')
-				
+				is_listener = request.data.get('is_listener')
+				artist_id = request.data.get('artist_id')
+
+				country = request.data.get('country')
+				website = request.data.get('website')
+				company_label = request.data.get('company_label')
+				social_media = request.data.get('social_media')
+				genre_id = request.data.get('genre_id')
+
 				if not gender:
 					user.delete()
 					context['success'] = False
@@ -59,7 +66,7 @@ class RegisterAPIView(APIView):
 					context['message'] = 'Please enter date of birth'
 					return Response(context)
 
-				if not is_artist and not is_normal:
+				if not is_artist and not is_listener:
 					user.delete()
 					context['success'] = False
 					context['message'] = 'Please specify user role'
@@ -67,26 +74,102 @@ class RegisterAPIView(APIView):
 
 
 				uploader = False
-				if is_artist:
-					uploader = is_artist
+				if is_artist == '1' or is_artist == True:
+					uploader = True
+
+					if country is None:
+						user.delete()
+						context['success'] = False
+						context['message'] = 'Please enter your country.'
+						return Response(context) 
+
+					if not website:
+						user.delete()
+						context['success'] = False
+						context['message'] = 'Please enter your website.'
+						return Response(context) 
+
+					if not company_label:
+						user.delete()
+						context['success'] = False
+						context['message'] = 'Please enter your company label'
+						return Response(context) 
+
+					if not social_media:
+						user.delete()
+						context['success'] = False
+						context['message'] = 'Please enter your social media link.'
+						return Response(context) 
+
+					if not genre_id:
+						user.delete()
+						context['success'] = False
+						context['message'] = 'Please enter genre_id.'
+						return Response(context) 
+
 				else:
 					uploader = False
 
-				normal = True
-				if is_normal:
-					normal = is_normal
+				normal = False
+				if is_listener == '1' or is_listener == True:
+					normal = True
+
+					if artist_id:
+						artists = artist_id.split(',')
+						if len(artists) < 3:
+							user.delete()
+							context['success'] = False
+							context['message'] = 'Please choose minimum 3 artist.'
+							return Response(context)
+					
+					else:
+						user.delete()
+						context['success'] = False
+						context['message'] = 'Please choose artist.'
+						return Response(context)
+
 				else:
 					normal = False
 
 				user_detail = UserDetail(
-					user_id=user.id,
-					gender=gender,
+					user_id = user.id,
+					gender = gender,
 					date_of_birth=date_of_birth,
 					is_artist = uploader,
-					is_normal = normal
+					is_listener = normal
 					)
 				user_detail.save()
 				print(user_detail)
+
+				genre_obj = ''
+				if genre_id:
+					try:
+						genre_obj = Genre.objects.get(pk = genre_id)
+					except Genre.DoesNotExist:
+						user.delete()
+						user_detail.delete()
+						context['success'] = False
+						context['message'] = 'Invalid genre id.'
+						return Response(context) 
+
+				if country and website and company_label and genre_id and social_media and user_detail.is_artist == True:
+					artist_info = ArtistInfo(
+						info = user_detail,
+						country = country,
+						website = website,
+						company_label = company_label,
+						social_media = social_media,
+						genre = genre_obj
+						)
+					artist_info.save()
+
+				if artists and user_detail.is_listener:
+					for art in artists:
+						LikeArtist.objects.create(
+							user = user,
+							artist_id = art,
+							like = True		
+							)
 				context['success'] = True
 				context['message'] = 'You signed up successfully.'
 
@@ -121,10 +204,10 @@ class LoginAPIView(ObtainAuthToken):
 
 				user_obj = UserDetail.objects.get(user = user)
 
-				if user_obj.is_normal and not user_obj.is_artist:
+				if user_obj.is_listener and not user_obj.is_artist:
 					artist_users = UserDetail.objects.filter(is_artist = True)
 					serializer = UserDetailSerializer(artist_users, many=True)
-					context['user'] = serializer.data
+					context['artist'] = serializer.data
 				
 				if user_obj.is_artist:
 					user_data = {
@@ -379,7 +462,6 @@ class LikeSongAPIView(APIView):
 	def get(self, request):
 		context = {}
 		user_id = request.user.id
-		print(user_id,'===========user_id')
 		try:
 			qs = LikeSong.objects.filter(user_id=user_id, like = True)
 			if not qs:
