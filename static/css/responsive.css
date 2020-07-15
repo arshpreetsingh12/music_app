@@ -1,0 +1,15 @@
+@media (min-width: 768px) {
+.sidebar {
+    width: 14rem!important;
+}
+.sidebar .nav-item .nav-link {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 1rem;
+    width: 14rem;
+}}
+@media (min-width: 576px) {
+.topbar .dropdown-list {
+    width: 20rem!important;
+}}

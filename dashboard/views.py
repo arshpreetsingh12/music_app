@@ -10,6 +10,12 @@ from django.db.models import Q
 from django.urls import reverse
 
 
+class HomePage(View):
+	template_name = 'dashbaord.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
 """ 
 	This view for user login  
 								"""
@@ -86,7 +92,7 @@ class ArtistUsers(View):
 	Admin user list 
 					  """
 class AdminUsers(View):
-	template_name = 'admin_users.html'
+	template_name = 'admin-users.html'
 
 	def get(self,request):
 		users = User.objects.filter(is_staff = True)
@@ -103,3 +109,100 @@ class GeneresList(View):
 		genre_list = Genre.objects.all()
 		return render(request,self.template_name,locals())
 
+
+
+""" Add New Songs """
+class AddNewSongs(View):
+	template_name = 'add-new-songs.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+
+
+""" Admin profile """
+class AdminProfile(View):
+	template_name = 'admin-profile.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+	
+
+""" Add New Admin """
+class AddAdmin(View):
+	template_name = 'add-new-admin.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())	
+
+
+
+""" Add New Album """
+class AddAlbum(View):
+	template_name = 'add-album.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())	
+
+
+""" Add New Playlist """
+class Financial(View):
+	template_name = 'finacial.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())	
+
+
+""" Add New Playlist """
+class AddNewPlaylist(View):
+	template_name = 'add-playlist.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+
+""" Add New Playlist """
+class AllPlayList(View):
+	template_name = 'playlist.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+
+""" Add New Playlist """
+class PromostionView(View):
+	template_name = 'promostion.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+		
+""" Add New Playlist """
+class ReportUserView(View):
+	template_name = 'report-user.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+""" Add New Playlist """
+class ReportView(View):
+	template_name = 'report.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+
+""" Add New Playlist """
+class SubscriptionView(View):
+	template_name = 'subscrption-offers.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+
+""" Add New Playlist """
+class AddGenre(View):
+	template_name = 'genre-add.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
