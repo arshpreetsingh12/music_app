@@ -1,0 +1,537 @@
+/*font-family: 'Muli', sans-serif;*/
+
+@import url('https://fonts.googleapis.com/css2?family=Muli:ital,wght@0,200;0,300;0,400;0,500;0,577;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,577;1,600;1,700;1,800;1,900&display=swap');
+
+/*font-family: 'Source Sans Pro', sans-serif;*/
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700;1,900&display=swap');
+@import "responsive.css";
+body {
+	font-family: 'Muli', sans-serif;
+}
+a {
+    color: #01BDBD;
+    text-decoration: none;
+    background-color: transparent;
+}
+#wrapper {
+    display: flex;
+}
+.sidebar-dark {
+    background: #01BDBD;
+}
+.sidebar {
+    /* width: 6.5rem; */
+    min-height: 100vh;
+}
+.sidebar .sidebar-brand {
+    height: 4.375rem;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .05rem;
+    z-index: 1;
+}
+/*.sidebar .nav-item .nav-link {
+    text-align: center;
+    padding: .75rem 1rem;
+    width: 6.5rem;
+}*/
+.sidebar .nav-item .collapse .collapse-inner .collapse-item, .sidebar .nav-item .collapsing .collapse-inner .collapse-item {
+    padding: .5rem 1rem;
+    margin: 0 .5rem;
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.sidebar .nav-item a {
+    color: #fff;
+    opacity: 0.6;
+}
+.sidebar .nav-item.active a {
+    opacity: 1;
+}
+.sidebar .nav-item.active {
+    position: relative;
+    background: #02558224;
+}
+.sidebar .nav-item.active:after {
+    content: "";
+    position: absolute;
+    border-left: 3px solid #000;
+    height: 100%;
+    top: 0;
+    left: 2px;
+}
+.sidebar-divider {
+    border-top: 1px solid #26262629;
+    z-index: 999;
+    opacity: 1;
+    width: 100%;
+}
+#content-wrapper {
+    background: #262626;
+    width: 100%;
+}
+.sidebar-brand-text {
+    text-align: center;
+    padding: 26px 0 9px;
+}
+.sidebar-brand-text img {
+    width: 102px;
+}
+.search-box {
+    /*background: #2f3640;*/
+    border-radius: 40px;
+    height: 43px;
+    padding: 7px;
+    box-shadow: 0px 0px 10px 0px rbg(0,0,0,0.2);
+}
+
+.search-btn {
+    border: none;
+    background: #0000;
+    border-radius: 50%;
+    float: left;
+    display: flex;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+    transition: 0.6s;
+    font-weight: bold;
+    color: #C5C7CD;
+    /* box-shadow: 0px 0px 10px 0px crimson; */
+}
+
+.search-txt {
+    background:none;
+    border:none;
+    outline:none;
+    float:left;
+    padding:0px;
+    font-size:16px;
+    transition:0.6s;
+    color:#C5C7CD;
+    font-weight:bold;
+    line-height:30px;
+    width:0px;
+}
+
+.search-box:hover > .search-txt {
+    width:240px;
+    padding:0 6px;
+}
+
+.search-box:hover > .search-btn {
+    background: #0000;
+    color: #C5C7CD;
+}
+.notification i {
+    color: #C5C7CD;
+}
+.badge-danger {
+    color: #fff;
+    background-color: #01BDBD;
+    border-radius: 50%;
+    height: 13px;
+    width: 10px;
+    border: 2px solid #fff;
+    position: absolute;
+    left: 15px;
+}
+.dropdown-item {
+     white-space: normal !important; 
+}
+.user-drop {
+    background: #01BDBD;
+    border-radius: 50px;
+}
+.topbar .topbar-divider {
+    width: 0;
+    border-right: 1px solid #DFE0EB;
+    height: calc(4.375rem - 2rem);
+    margin: auto 2rem;
+}
+.user-drop .dropdown-toggle::after {
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 0.125rem solid;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 1px;
+    text-indent: -624.9375rem;
+    transform: rotate(134deg);
+    color: #fff;
+}
+nav.topbar {
+    padding: 31px 21px;
+}
+.card.top-cards {
+    background: #474747;
+    border: 1px solid #DFE0EB;
+    border-radius: 8px;
+}
+.top-cards .text-xs {
+    color: #fff;
+}
+.card-count {
+    color: #000;
+}
+.card.top-cards:hover .card-count {
+    color: #01BDBD;
+}
+.card.top-cards:hover {
+    border: 1px solid #01BDBD;
+    color: #01BDBD;
+}
+.card.top-cards:hover .text-xs {
+    color: #01BDBD;
+}
+ul.day-wise li {
+    display: inline-block;
+    padding: 0 24px;
+    position: relative;
+    font-size: 12px;
+}
+ul.day-wise li:before {
+    content: "";
+    position: absolute;
+    border-bottom: 2px solid #DFE0EB;
+    width: 15px;
+    left: 2px;
+    bottom: 8px;
+}
+.w-70 {
+    width: 70%;
+}
+.w-30 {
+    width: 30%;
+}
+.bdr-btm {
+    border-bottom: 1px solid #DFE0EB;
+}
+.card {
+    background: #474747;
+    color: #fff;
+    border: 1px solid #DFE0EB;
+    height: 100%;
+}
+.listner-data {
+    border-left: 1px solid #DFE0EB;
+}
+.listner-data .listner-count {
+    padding: 22px 0;
+}
+.listner-count .h3 {
+ color: #000;
+ font-weight: 800;
+}
+.trends-head {
+    color: #000;
+    padding-bottom: 8px;
+}
+.date-area p {
+    font-size: 12px;
+}
+.most-listen {
+    padding: 14px 20px;
+}
+.mst-head {
+    color: #000;
+    font-weight: 600;
+}
+
+/*===============  User page css  ================*/
+.card.user-top-cards {
+    background: #262626;
+}
+.user-card-head {
+    font-size: 10px;
+}
+.user-card-count {
+    font-size: 22px;
+}
+.user-top-cards .card-body {
+    padding: 0 6px;
+}
+/*custom form css*/
+.form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #FFFFFF;
+    background-color: #474747;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+#datepicker .input-group-addon {
+    position: absolute;
+    right: 6px;
+    top: 4px;
+}
+.table {
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+}
+.text-dark {
+    color: #030303!important;
+}
+.filter-side .nav {
+    align-items: center;
+}
+.filter-side ul li {
+    display: inline-block;
+    padding: 0 0px;
+    font-size: 12px;
+    margin: 0 13px;
+}
+.topbar-divider {
+    width: 0;
+    border-right: 1px solid #01BDBD;
+    height: calc(3rem - 2rem);
+    margin: auto 5px;
+}
+span.sort-icon i {
+    transform: rotate(182deg);
+}
+table.table th {
+    color: #9FA2B4;
+}
+i.fa.fa-eye {
+    color: #b8b8b8;
+}
+.table-perPage {
+    font-weight: 300;
+}
+.page-pagination {
+    color: #fff;
+    font-weight: 400;
+}
+.music-tbl tr:hover {
+    background: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.music-tbl tr:hover small {
+    color: #000 !important;
+}
+.music-tbl tr:hover i.fa.fa-eye {
+    color: #01BDBD;
+}
+.music-tbl tr:hover .table-perPage, .music-tbl tr:hover .page-pagination {
+    color: #000 !important;
+}
+label {
+    font-size: 12px;
+}
+button.filter-btn {
+    background: #01BDBD;
+    border-radius: 20px;
+    border: none;
+    padding: 8px 52px;
+    color: #fff;
+    font-size: 12px;
+}
+.primary-btn {
+    border: 1.5px solid #01BDBD;
+    border-radius: 50px;
+    padding: 5px 26px;
+    color: #01BDBD;
+    text-transform: uppercase;
+    font-size: 12px;
+    width: 134px;
+}
+.secondary-btn {
+    border: 1.5px solid #01BDBD;
+    background: #01BDBD;
+    border-radius: 50px;
+    padding: 5px 26px;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 12px;
+    width: 134px;
+}
+.custom-upload:before {
+    content: 'UPLOAD';
+    display: inline-block;
+    background: #01BDBD;
+    border-radius: 5px;
+    padding: 4px 12px;
+    outline: none;
+    white-space: nowrap;
+    float: right;
+    cursor: pointer;
+    font-size: 8px;
+    letter-spacing: 2.2px;
+    font-weight: 700;
+}
+.custom-upload::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+/*playlist page*/
+.playlist_box {
+    width: 163px;
+    color: #fff;
+    margin-right: 22px;
+}
+.playlist_raper_img img {
+    width: 162px;
+    object-fit: cover;
+    height: 167px;
+}
+.playlist_box p {
+    font-size: 10px;
+    font-weight: 500;
+    padding-top: 14px;
+    line-height: 2;
+}
+.playlist_box h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+.playlist_raper_img {
+    position: relative;
+}
+
+.play_icon img {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    left: 50%;
+    bottom: 0;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.play_icon {
+    background: linear-gradient(180deg, rgba(169, 158, 251, 0.13) 0%, #3E2AD1 100%);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    border-radius: 5px;
+    left: -2px;
+    transition: 0.3s;
+
+    opacity: 0;
+}
+.playlist_raper_img:hover .play_icon {
+    opacity: 1 !important;
+    transition: 0.3s;
+}
+/*All Track Genres Page CSS*/
+.old-btn {
+    background: #F12B2C;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 15px;
+}
+.new-btn {
+    background: #FEC400;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 15px;
+}
+.classic-btn {
+    background: #29CC97;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 15px;
+}
+.get-now {
+    background: #01BDBD;
+    border: none;
+    width: 134px;
+    height: 37px;
+    font-size: 10px;
+    color: #fff;
+    margin: 0 auto;
+    border-radius: 20px;
+}
+ul.Premium-list {
+    list-style: none;
+    padding: 22px 0px 26px 0;
+}
+ul.Premium-list li {
+    font-size: 16px;
+    line-height: 20px;
+    padding: 12px 0;
+}
+.premium-head {
+    font-weight: 800;
+    font-size: 36px;
+    line-height: 16px;
+}
+ul.Premium-list li i {
+    color: #01BDBD;
+    font-size: 18px;
+}
+.family {
+    font-weight: 300;
+}
+.user-drop-2 {
+    background: #01BDBD;
+    border-radius: 50px;
+}
+.user-drop-2 .nav-link {
+    color: #fff;
+}
+.user-drop-2 .dropdown-toggle::after {
+    margin-left: 1.255em;
+    vertical-align: .255em;
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 0.125rem solid;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 1px;
+    text-indent: -624.9375rem;
+    transform: rotate(134deg);
+    color: #fff;
+}
+.delete-icn {
+    width: 14px;
+}
+.white-txt {
+    color: #fff;
+}
+.music-tbl tr:hover .white-txt {
+    color: #000;
+}
+table.another-tbl th, table.another-tbl td {
+    color: #fff;
+}
+.all-page-heading h1 {
+    font-size: 24px;
+    color: #fff;
+}
