@@ -17,26 +17,25 @@
           <div class="row">
 
            <div class="row play__list m-3 p-3">
+            {% for list in playlists %}
              <div class="playlist_box">
                <div class="playlist_raper_img">
-                 <img class="" src="./images/Mask-music.png">
+                {% if list.cover_image %}
+                <img class="" src="{{list.cover_image.url}}">
+                {% else %}
+                 <img class="" src="{% static 'images/Mask-music.png' %}">
+                 {% endif %}
                  <div class="play_icon">
-                   <a href="#"><img class="" src="./images/Play.svg"></a> 
+                   <a href="#"><img class="" src="{% static 'images/Play.svg' %}"></a> 
                  </div>
                </div>
-               <p>The Supplications - Sacred Liturgical Poems Of The Oriental Jews - Parashat Vayislah - CD8</p>
-               <h3>Various Artist</h3>
+               <p>{{list.playlist}} - {{list.description}}</p>
+               <h3>{{list.artist.info.user.first_name}}</h3>
+               <!-- <p> - Sacred Liturgical Poems Of The Oriental Jews - Parashat Vayislah - CD8</p>
+               <h3>Various Artist</h3> -->
              </div>
-             <div class="playlist_box">
-               <div class="playlist_raper_img">
-                 <img class="" src="./images/Mask-music.png">
-                 <div class="play_icon">
-                   <a href="#"><img class="" src="./images/Play.svg"></a>
-                 </div>
-               </div>
-               <p>The Supplications - Sacred Liturgical Poems Of The Oriental Jews - Parashat Vayislah - CD8</p>
-               <h3>Various Artist</h3>
-             </div>
+             {% endfor %}
+           
            </div>
            
             

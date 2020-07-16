@@ -45,7 +45,7 @@ class Genre(models.Model):
 
 """ This table for artist's extra details. """
 class ArtistInfo(models.Model):
-	info = models.ForeignKey(UserDetail, on_delete=models.CASCADE)
+	info = models.OneToOneField(UserDetail, on_delete=models.CASCADE)
 	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 	country = models.CharField(max_length=50)
 	website = models.CharField(max_length=250)
@@ -100,7 +100,10 @@ class HideSong(models.Model):
 """ When user create their playlist that object saved in this table """
 class Playlist(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	artist = models.ForeignKey(ArtistInfo, on_delete=models.CASCADE, null = True, blank = True)
 	playlist = models.CharField(max_length=50)
+	cover_image = models.FileField(upload_to = 'play_list', null = True, blank = True)
+	description = models.TextField(max_length=1000, null = True, blank = True)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

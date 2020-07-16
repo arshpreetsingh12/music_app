@@ -125,24 +125,26 @@
                       </tr>
                     </thead>
                     <tbody>
+                       {% for user in users %}
                       <tr>
                         <td>
-                          <div class="table-dark-td">yahalat hen</div>
+                          <div class="table-dark-td">{{user.user.username}}</div>
                           <small class="text-white tbl-sml">Nissim Shushan,Nissim Timsit,David<br>Otmazgin,Moshe Perez,Lior Elmaleh</small>
                         </td>
-                        <td>3:74</td>
-                        <td>12,000<br>
-                          <small class="text-white">on 24.05.2019</small>
+                        <td>{{user.user.username}}</td>
+                        <td>{{user.user.email}}<br>
+                          <small class="text-white">on {{user.user.date_joined|date:"Y-m-d"}}</small>
                         </td>
-                        <td>20,000<br>
-                          <small class="text-white">6:30 PM</small></td>
+                        <td>{{user.artistinfo.country}}<br>
+                          <small class="text-white">{{ user.user.date_joined|date:"H:i" }}</small></td>
                         <td>3:74</td>
                         <td>3:74</td>
                         <td>50,000<br>
                           <small class="text-white">on 24.05.2019</small>
                         </td>
-                        <td>3:74</td>
+                        <td class="{{user.user.status}}">{% if user.user.status %} Active {% else %} Inactive {% endif %}</td>
                       </tr>
+                      {% endfor %}
                       <tr>
                         <td>
                           <div class="table-dark-td">yahalat hen</div>

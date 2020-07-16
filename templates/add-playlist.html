@@ -29,12 +29,14 @@
                 </div>
 
                 <!-- form -->
+                <form action="{% url 'add_new_playlist' %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
                 <div class="pt-3 mb-3  ">
                   <div class="row px-3">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Title</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" name="title" id="exampleInputPassword1" placeholder="">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -43,7 +45,16 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Artist</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <!-- <input type="text" class="form-control" name="artist" id="exampleInputPassword1" placeholder=""> -->
+                         <select class="form-control choose-artist"  name="artist" id="exampleFormControlSelect1">
+                          <option selected disabled>Select Artist</option>
+                          {% for user in artist_user %}
+                          <option value="{{user.id}}">{{user.user.first_name}}</option>
+                          {% endfor %}
+                          <!-- <option>3</option>
+                          <option>4</option>
+                          <option>5</option> -->
+                        </select>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -52,7 +63,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Album Length eg: “04:20”</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" name="album_length" id="exampleInputPassword1" placeholder="">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -61,7 +72,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Cover Image</label>
-                        <input type="file" class="form-control custom-upload " id="exampleFormControlFile1">
+                        <input type="file" class="form-control custom-upload " name="cover_img" id="exampleFormControlFile1" accept="image/jpeg">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -85,20 +96,20 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Brief e.g. <i>“Enter any size of text description here”</i></label>
-                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        <textarea class="form-control" name="discription" id="exampleFormControlTextarea1" rows="3"></textarea>
                       </div>
                     </div>
                   </div>
 
                   <div class="px-3 text-right py-5">
-                      <button class="btn primary-btn mr-2">cancel</button>
-                      <button class="btn secondary-btn">save</button>
+                      <button class="btn primary-btn mr-2 cancel-btn" type="button">cancel</button>
+                      <button class="btn secondary-btn add-playlist" type="submit">save</button>
                   </div>
 
                 </div>
               </div>
             </div>
-            
+            </form>
           </div>
 
           <!-- Content Row -->
@@ -115,3 +126,55 @@
 
   </div>
  {% endblock %}
+
+
+
+ {% block extrascript %}
+<script type="text/javascript">
+
+$('.cancel-btn').on('click', function() {
+    window.history.back();
+  });
+
+
+$('.add-playlist').click(function(){
+  var title = ($("input[name='title']").val()).trim();
+  var artist = $(".choose-artist").val();
+  var discription = ($("textarea[name='discription']").val()).trim();
+  var submit = true;
+
+    if (title==''|| title == null){
+        $("input[name='title']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='title']").css('border', '1px solid #ced4da');
+      submit = true;
+    } 
+      
+    if (artist == ''|| artist == null){
+        $('.choose-artist').css('border', '1px solid red');
+          submit = false;
+    }
+
+    else{
+      $('.choose-artist').css('border', '1px solid #ced4da');
+        submit = true;
+   
+     }
+
+
+    if (discription==''|| discription == null){
+        $("textarea[name='discription']").css('border', '1px solid red');
+          submit = false;
+    }
+    else{
+      $("textarea[name='discription']").css('border', '1px solid #ced4da');
+      submit = true;
+    }
+
+    return submit;
+});
+</script>
+
+  {% endblock %}

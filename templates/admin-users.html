@@ -26,7 +26,7 @@
                   </div>
                   <div class="filter-side">
                     <ul class="nav">
-                      <li><a href="#"><span class="mr-3"><i class="fa fa-plus" aria-hidden="true"></i></span> Add</a></li>
+                      <li><a href="{% url 'add_admin' %}"><span class="mr-3"><i class="fa fa-plus" aria-hidden="true"></i></span> Add</a></li>
                       <div class="topbar-divider d-sm-block"></div>
                       <li><a href="#"><span class="sort-icon mr-3"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i></span> Sort</a></li>
                       <div class="topbar-divider d-sm-block"></div>
@@ -49,20 +49,22 @@
                       </tr>
                     </thead>
                     <tbody>
+                      {% for user in users %}
                       <tr>
                         <td>
-                          <div class="table-dark-td">yahalat hen</div>
-                          <small class="text-white tbl-sml">Nissim Shushan,Nissim Timsit,David<br>Otmazgin,Moshe Perez,Lior Elmaleh</small>
+                          <div class="table-dark-td">{{user.username}}</div>
+                          <small class="text-white tbl-sml">{{user.admindetail.address}}</small>
                         </td>
-                        <td>3:74</td>
-                        <td>12,000<br>
-                          <small class="text-white">on 24.05.2019</small>
+                        <td>{{user.username}}</td>
+                        <td>{{user.first_name}}<br>
+                          <small class="text-white">on {{ user.date_joined|date:"Y-m-d" }}</small>
                         </td>
-                        <td>20,000<br>
-                          <small class="text-white">6:30 PM</small></td>
-                        <td>3:74</td>
+                        <td>{{user.last_name}}<br>
+                          <small class="text-white">{{ user.date_joined|date:"H:i" }}</small></td>
+                        <td>{% if user.is_active %} Active {% else %} Inactive {% endif %}</td>
                         <td><i class="fa fa-eye" aria-hidden="true"></i></td>
                       </tr>
+                      {% endfor %}
                       <tr>
                         <td>
                           <div class="table-dark-td">yahalat hen</div>
