@@ -110,6 +110,7 @@ class RegisterAPIView(APIView):
 				else:
 					uploader = False
 
+				artists = ""
 				normal = False
 				if is_listener == '1' or is_listener == True:
 					normal = True
