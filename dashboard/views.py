@@ -8,12 +8,19 @@ from django.shortcuts import render, HttpResponseRedirect, redirect,HttpResponse
 from api.models import *
 from django.db.models import Q
 from django.urls import reverse
-
+from datetime import datetime,date,timedelta
+from .models import *
 
 class HomePage(View):
 	template_name = 'dashbaord.html'
 
 	def get(self,request):
+		today = datetime.today()
+		week_start_date = today.date() - timedelta(days = 7)
+		weekly_listener = UserDetail.objects.filter(is_listener = True, created_at__date__gte = week_start_date).count()
+		monthly_start_date = today.date() - timedelta(days = 30)
+		monthly_listener = UserDetail.objects.filter(is_listener = True, created_at__date__gte = monthly_start_date).count()
+		daily_listener = UserDetail.objects.filter(is_listener = True, created_at__date__gte = today.date()).count()
 		return render(request,self.template_name,locals())
 
 """ 
@@ -133,7 +140,45 @@ class AddAdmin(View):
 	template_name = 'add-new-admin.html'
 
 	def get(self,request):
+
 		return render(request,self.template_name,locals())	
+
+	def post(self,request):
+		username = request.POST.get('user_name')
+		password = request.POST.get('password')
+		first_name = request.POST.get('first_name')
+		last_name = request.POST.get('last_name')
+		email = request.POST.get('email')
+		status = request.POST.get('status')
+		address = request.POST.get('address')
+		phone_number = request.POST.get('phone')
+
+		try:
+			user = User.objects.get(Q(username = username)|Q(email = email))
+			messages.info(request, "User already exist.")
+		except User.DoesNotExist:
+			add_user = User.objects.create(
+				username = username,
+				email = email,
+				first_name = first_name,
+				last_name = last_name
+				)
+			add_user.set_password(password)
+			if status == "A":
+				add_user.status = True
+			else:
+				add_user.status = False
+			add_user.is_staff = True
+			add_user.save()
+
+			extra_detail = AdminDetail.objects.create(
+				user = add_user,
+				phone_number = phone_number,
+				address = address
+				)
+
+			messages.info(request, "User successfully added.")
+		return HttpResponseRedirect(reverse('add_admin'))
 
 
 
@@ -158,7 +203,33 @@ class AddNewPlaylist(View):
 	template_name = 'add-playlist.html'
 
 	def get(self,request):
+		artist_user = UserDetail.objects.filter(is_artist = True)
 		return render(request,self.template_name,locals())
+
+	def post(self,request):
+		title = request.POST.get('title')
+		artist = request.POST.get('artist')
+		cover_img = request.FILES.get('cover_img')
+		discription = request.POST.get('discription')
+
+		try:
+			artist_info = ArtistInfo.objects.get(info_id = artist)
+			add_play_list = Playlist.objects.create(
+				user = request.user,
+				artist = artist_info,
+				playlist = title,
+				description = discription   
+				)
+			if cover_img:
+				add_play_list.cover_image = cover_img
+			add_play_list.save()
+			messages.info(request, "Playlist successfully added.")
+
+		except Exception as e:
+			print(e)
+			messages.error(request, "Something went wrong.Please try again.")
+		return HttpResponseRedirect(reverse('add_new_playlist'))
+
 
 
 """ Add New Playlist """
@@ -166,6 +237,7 @@ class AllPlayList(View):
 	template_name = 'playlist.html'
 
 	def get(self,request):
+		playlists = Playlist.objects.all()
 		return render(request,self.template_name,locals())
 
 
