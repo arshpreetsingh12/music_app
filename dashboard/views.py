@@ -120,6 +120,13 @@ class GeneresList(View):
 
 """ Add New Songs """
 class AddNewSongs(View):
+	template_name = 'all-songs.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+
+""" Add New Songs """
+class AddNewSongs(View):
 	template_name = 'add-new-songs.html'
 
 	def get(self,request):

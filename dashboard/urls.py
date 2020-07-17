@@ -4,7 +4,7 @@ from .views import *
 
 urlpatterns = [
 	
-	path('', HomePage.as_view(), name = "dashboard_home"),
+	path('home', HomePage.as_view(), name = "dashboard_home"),
 	path('web-login', LoginView.as_view(), name = "web_login"),
 	
 	path('admin-users', AdminUsers.as_view(), name = "admin_users"),
@@ -20,12 +20,13 @@ urlpatterns = [
 	
 	path('info', UserInfo.as_view(), name = "info"),
 	path('add-new-song', AddNewSongs.as_view(), name = "add_new_song"),
-	path('add-new-playlist', AddNewPlaylist.as_view(), name = "add_new_playlist"),
 	
 	path('add-album', AddAlbum.as_view(), name = "add_album"),
 	path('financial', Financial.as_view(), name = "financial"),
 	
 	path('all-playlist', AllPlayList.as_view(), name = "all_playlist"),
+	path('add-new-playlist', AddNewPlaylist.as_view(), name = "add_new_playlist"),
+	
 	path('promotions', PromostionView.as_view(), name = "promotions"),
 	
 	path('report-user', ReportUserView.as_view(), name = "report_user"),
