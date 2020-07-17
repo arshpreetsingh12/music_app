@@ -48,6 +48,7 @@ urlpatterns = [
     path('user-list', UserList.as_view()),
     path('my-follower', MyFollowerList.as_view()),
     path('my-following', MyFollowingList.as_view()),
+    path('country-list', CountryList.as_view()),
 
 
 ]

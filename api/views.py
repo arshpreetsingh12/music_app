@@ -49,7 +49,7 @@ class RegisterAPIView(APIView):
 				is_listener = request.data.get('is_listener')
 				artist_id = request.data.get('artist_id')
 
-				country = request.data.get('country')
+				country = request.data.get('country_id')
 				website = request.data.get('website')
 				company_label = request.data.get('company_label')
 				social_media = request.data.get('social_media')
@@ -153,14 +153,25 @@ class RegisterAPIView(APIView):
 						context['message'] = 'Invalid genre id.'
 						return Response(context) 
 
-				if country and website and company_label and genre_id and social_media and user_detail.is_artist == True:
+				country_obj = ""
+				if country:
+					try:
+						country_obj = Country.objects.get(pk = country)
+					except Country.DoesNotExist:
+						user.delete()
+						user_detail.delete()
+						context['success'] = False
+						context['message'] = 'Invalid country id.'
+						return Response(context) 
+
+				if country_obj and website and company_label and genre_id and social_media and user_detail.is_artist == True:
 					artist_info = ArtistInfo(
 						info = user_detail,
-						country = country,
 						website = website,
 						company_label = company_label,
 						social_media = social_media,
-						genre = genre_obj
+						genre = genre_obj,
+						country = country_obj
 						)
 					artist_info.save()
 
@@ -180,6 +191,24 @@ class RegisterAPIView(APIView):
 
 		return Response(context)	
 
+
+""" Country List """ 
+class CountryList(APIView):
+	def get(self, request):
+		context = {}
+		try:
+			qs = Country.objects.all()
+			if qs:
+				serializer = CountrySerializser(qs, many=True)
+				context['success'] = True
+				context['data'] = serializer.data
+			else:
+				context['success'] = True
+				context['message'] = "No country found."
+		except Exception as e:
+			context['success'] = False
+			context['message'] = "Something went wrong, Please try again"	
+		return Response(context)	
 
 """ Login View """ 
 class LoginAPIView(ObtainAuthToken):

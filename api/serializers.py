@@ -107,3 +107,8 @@ class FollowUserSerializser(serializers.ModelSerializer):
 		model = Follwer
 		fields = '__all__'		
 
+class CountrySerializser(serializers.ModelSerializer):
+	
+	class Meta:
+		model = Country
+		fields = '__all__'		

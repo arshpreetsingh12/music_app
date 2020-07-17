@@ -117,9 +117,8 @@ class GeneresList(View):
 		return render(request,self.template_name,locals())
 
 
-
 """ Add New Songs """
-class AddNewSongs(View):
+class AllSongs(View):
 	template_name = 'all-songs.html'
 
 	def get(self,request):
@@ -130,9 +129,37 @@ class AddNewSongs(View):
 	template_name = 'add-new-songs.html'
 
 	def get(self,request):
+		all_artist = UserDetail.objects.filter(is_artist = True)
 		return render(request,self.template_name,locals())
 
+	def post(self, request):
+		artist = request.POST.get('artist')
+		song_title = request.POST.get('song_title')
+		song_length = request.POST.get('song_length')
+		song_img = request.FILES.get('song_img')
+		song_mp3 = request.FILES.get('song_mp3')
+		description = request.POST.get('description')
 
+		try:
+			add_song = Song.objects.create(
+				user_id = artist,
+				song_title = song_title
+				)
+			if song_length:
+				add_song.song_length = song_length		
+			if song_img:
+				add_song.song_image = song_img
+			if song_mp3:
+				add_song.song_mp3 = song_mp3
+			if description:
+				add_song.description = description
+			add_song.save()
+			messages.success(request, "Song successfully added.")
+		
+		except Exception as e:
+			print(e)
+			messages.error(request, "Something went wrong.")
+		return HttpResponseRedirect(reverse('add_new_song'))
 
 """ Admin profile """
 class AdminProfile(View):
@@ -190,11 +217,57 @@ class AddAdmin(View):
 
 
 """ Add New Album """
+class AllAlbums(View):
+	template_name = 'all-albums.html'
+
+	def get(self,request):
+		all_albums = Album.objects.all()
+		return render(request,self.template_name,locals())	
+
+
+""" Add New Album """
 class AddAlbum(View):
 	template_name = 'add-album.html'
 
 	def get(self,request):
-		return render(request,self.template_name,locals())	
+		all_artist = UserDetail.objects.filter(is_artist = True)
+		songs = Songs.objects.all()
+		return render(request,self.template_name,locals())
+
+	# def post(self, request):
+	# 	artist = request.POST.get('artist')
+	# 	twitter_url = request.POST.get('twitter_url')
+	# 	album_length = request.POST.get('album_length')
+	# 	google_url = request.POST.get('google_url')
+	# 	website_url = request.POST.get('website_url')
+	# 	description = request.POST.get('description')
+	# 	fb_url = request.POST.get('fb_url')
+	# 	album_title = request.POST.get('album_title')
+	# 	album_pic = request.FILES.get('album_pic')
+
+	# 	try:
+	# 		add_album = Album.objects.create(
+	# 			artist_id = artist,
+	# 			album = album_title
+	# 			)
+	# 		if album_pic:
+	# 			add_album.album_pic = album_pic
+			
+	# 		if fb_url:
+	# 			add_album.fb_url = fb_url
+	# 		if twitter_url:
+	# 			add_album.twitter_url = twitter_url
+	# 		if google_url:
+	# 			add_album.google_url = google_url
+	# 		if website_url:
+	# 			add_album.website_url = website_url
+	# 		if description:
+	# 			add_album.description = description
+	# 		add_album.album_length = album_length
+	# 		add_album.save()
+	# 	except Exception as e:
+	# 		raise e
+
 
 
 """ Add New Playlist """

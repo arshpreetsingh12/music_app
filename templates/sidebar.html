@@ -42,15 +42,15 @@
         </a>
          <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="py-2 collapse-inner rounded">
-            <a class="collapse-item" href="Albums.html">All Albums</a>
-            <a class="collapse-item" href="Add-Album.html">Add Album</a>
+            <a class="collapse-item" href="{% url 'all_albums' %}">All Albums</a>
+            <a class="collapse-item" href="{% url 'add_album' %}">Add Album</a>
             <a class="collapse-item" href="utilities-animation.html">Edit Album</a>
             <a class="collapse-item" href="utilities-other.html">View Album</a>
           </div>
         </div>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'add_new_song' %}">
+        <a class="nav-link" href="{% url 'all_songs' %}">
           <i class="fa fa-pie-chart" aria-hidden="true"></i>
           <span>Songs</span></a>
       </li>

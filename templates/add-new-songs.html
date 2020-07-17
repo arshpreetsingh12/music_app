@@ -29,12 +29,14 @@
                 </div>
 
                 <!-- form -->
+                <form action="{% url 'add_new_song' %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
                 <div class="pt-3 mb-3  ">
                   <div class="row px-3">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Title</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="" maxlength="30" name="song_title">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -43,7 +45,13 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Artist</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                      <!--   <input type="password" class="form-control" id="exampleInputPassword1" placeholder=""> -->
+                       <select class="form-control artist" id="exampleFormControlSelect1" name="artist">
+                          <option selected disabled>Select Artist</option>
+                      {% for artist in all_artist %}
+                        <option value="{{artist.id}}">{{artist.user.first_name}}</option>
+                      {% endfor %}
+                      </select>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -52,7 +60,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Album Length eg: “04:20”</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="" name="song_length">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -61,7 +69,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Song Image</label>
-                        <input type="file" class="form-control custom-upload " id="exampleFormControlFile1">
+                        <input type="file" class="form-control custom-upload " id="exampleFormControlFile1" name="song_img">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -70,7 +78,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Song MP3</label>
-                        <input type="file" class="form-control custom-upload " id="exampleFormControlFile1">
+                        <input type="file" class="form-control custom-upload " id="exampleFormControlFile1" name="song_mp3">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -79,19 +87,20 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Brief e.g. <i>“Enter any size of text description here”</i></label>
-                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="description"></textarea>
                       </div>
                     </div>
                   </div>
 
                   <div class="px-3 text-right py-5">
-                      <button class="btn primary-btn mr-2">cancel</button>
-                      <button class="btn secondary-btn">save</button>
+                      <button class="btn primary-btn mr-2 cancel-btn" type="button">cancel</button>
+                      <button class="btn secondary-btn add-song" type="submit">save</button>
                   </div>
 
                 </div>
               </div>
             </div>
+          </form>
             
           </div>
 
@@ -110,3 +119,49 @@
   </div>
 
  {% endblock %}
+
+{% block extrascript %}
+<script type="text/javascript">
+
+ $('.cancel-btn').on('click', function() {
+    window.history.back();
+  });
+
+
+$('.add-song').click(function(){
+  var song_title = ($("input[name='song_title']").val()).trim();
+  var song_mp3 = ($("input[name='song_mp3']").val()).trim();
+  var artist = $(".artist").val();
+  var submit = true;
+
+    if (song_title==''|| song_title == null){
+        $("input[name='song_title']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='song_title']").css('border', '1px solid #ced4da');
+    }
+
+    if (song_mp3==''|| song_mp3 == null){
+        $("input[name='song_mp3']").css('border', '1px solid red');
+         submit = false;
+    }
+    else{
+      $("input[name='song_mp3']").css('border', '1px solid #ced4da');
+    }
+      
+    if (artist == ''|| artist == null){
+        $('.artist').css('border', '1px solid red');
+          submit = false;
+    }
+
+    else{
+      $('.artist').css('border', '1px solid #ced4da');
+   
+     }
+
+    return submit;
+});
+</script>
+
+  {% endblock %}

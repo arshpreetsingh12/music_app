@@ -33,37 +33,50 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Album Title</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="" name="album_title">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">FB URL</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="fb_url">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Artist</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <!-- <input type="password" class="form-control" id="exampleInputPassword1" placeholder=""> -->
+                        <select class="form-control" id="exampleFormControlSelect1" name="artist">
+                          <option selected disabled>Select Artist</option>
+                        {% for artist in all_artist %}
+                            <option value="{{artist.id}}">{{artist.user.first_name}}</option>
+                           
+                        {% endfor %}
+                      </select>
+                      </div>
+                    </div>
+                     <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Album Pic</label>
+                        <input type="file" class="form-control" id="exampleInputPassword1" placeholder="" name="album_pic">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">TWITTER URL</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="twitter_url">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Album Length eg: “04:20”</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="" name="album_length">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">GOOGLE PLUS URL</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="google_url">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -71,23 +84,22 @@
                         <label for="exampleInputPassword1">Select Album Songs</label>
                         <select class="form-control" id="exampleFormControlSelect1">
                           <option></option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
+                          {% for song in songs %}
+                          <option>{{song.song_title}}</option>
+                          {% endfor %}
                         </select>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Website URL</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="website_url">
                       </div>
                     </div>
                     <div class="col-md-12">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Brief Description</label>
-                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="description"></textarea>
                       </div>
                     </div>
                   </div>
