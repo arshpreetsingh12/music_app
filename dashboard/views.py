@@ -122,6 +122,7 @@ class AllSongs(View):
 	template_name = 'all-songs.html'
 
 	def get(self,request):
+		all_song = Song.objects.all()
 		return render(request,self.template_name,locals())
 
 """ Add New Songs """
@@ -231,42 +232,49 @@ class AddAlbum(View):
 
 	def get(self,request):
 		all_artist = UserDetail.objects.filter(is_artist = True)
-		songs = Songs.objects.all()
+		songs = Song.objects.all()
 		return render(request,self.template_name,locals())
 
-	# def post(self, request):
-	# 	artist = request.POST.get('artist')
-	# 	twitter_url = request.POST.get('twitter_url')
-	# 	album_length = request.POST.get('album_length')
-	# 	google_url = request.POST.get('google_url')
-	# 	website_url = request.POST.get('website_url')
-	# 	description = request.POST.get('description')
-	# 	fb_url = request.POST.get('fb_url')
-	# 	album_title = request.POST.get('album_title')
-	# 	album_pic = request.FILES.get('album_pic')
+	def post(self, request):
+		artist = request.POST.get('artist')
+		twitter_url = request.POST.get('twitter_url')
+		album_length = request.POST.get('album_length')
+		google_url = request.POST.get('google_url')
+		website_url = request.POST.get('website_url')
+		description = request.POST.get('description')
+		fb_url = request.POST.get('fb_url')
+		album_title = request.POST.get('album_title')
+		album_pic = request.FILES.get('album_pic')
 
-	# 	try:
-	# 		add_album = Album.objects.create(
-	# 			artist_id = artist,
-	# 			album = album_title
-	# 			)
-	# 		if album_pic:
-	# 			add_album.album_pic = album_pic
+		try:
+			add_album = Album.objects.create(
+				artist_id = artist,
+				album = album_title
+				)
+			if album_pic:
+				add_album.album_pic = album_pic
 			
-	# 		if fb_url:
-	# 			add_album.fb_url = fb_url
-	# 		if twitter_url:
-	# 			add_album.twitter_url = twitter_url
-	# 		if google_url:
-	# 			add_album.google_url = google_url
-	# 		if website_url:
-	# 			add_album.website_url = website_url
-	# 		if description:
-	# 			add_album.description = description
-	# 		add_album.album_length = album_length
-	# 		add_album.save()
-	# 	except Exception as e:
-	# 		raise e
+			if fb_url:
+				add_album.fb_url = fb_url
+			if twitter_url:
+				add_album.twitter_url = twitter_url
+			if google_url:
+				add_album.google_url = google_url
+			if website_url:
+				add_album.website_url = website_url
+			if description:
+				add_album.description = description
+			if album_length:
+				add_album.album_length = album_length
+			
+			add_album.save()
+			messages.success(request, "Album successfully added.")
+
+		except Exception as e:
+			print(e)
+
+			messages.error(request, "Something went wrong.")
+		return HttpResponseRedirect(reverse('add_album'))
 
 
 

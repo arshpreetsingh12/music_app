@@ -28,6 +28,8 @@
                 </div>
 
                 <!-- form -->
+                <form action="{% url 'add_album' %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
                 <div class="pt-3 mb-3  ">
                   <div class="row px-3">
                     <div class="col-md-6">
@@ -46,7 +48,7 @@
                       <div class="form-group">
                         <label for="exampleInputPassword1">Artist</label>
                         <!-- <input type="password" class="form-control" id="exampleInputPassword1" placeholder=""> -->
-                        <select class="form-control" id="exampleFormControlSelect1" name="artist">
+                        <select class="form-control artist" id="exampleFormControlSelect1" name="artist">
                           <option selected disabled>Select Artist</option>
                         {% for artist in all_artist %}
                             <option value="{{artist.id}}">{{artist.user.first_name}}</option>
@@ -55,12 +57,12 @@
                       </select>
                       </div>
                     </div>
-                     <div class="col-md-6">
+                    <!--  <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Album Pic</label>
                         <input type="file" class="form-control" id="exampleInputPassword1" placeholder="" name="album_pic">
                       </div>
-                    </div>
+                    </div> -->
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">TWITTER URL</label>
@@ -82,7 +84,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Select Album Songs</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
+                        <select class="form-control select-song" id="exampleFormControlSelect1">
                           <option></option>
                           {% for song in songs %}
                           <option>{{song.song_title}}</option>
@@ -105,14 +107,14 @@
                   </div>
 
                   <div class="px-3 text-right py-5">
-                      <button class="btn primary-btn mr-2">cancel</button>
-                      <button class="btn secondary-btn">save</button>
+                      <button class="btn primary-btn mr-2 cancel-btn" type="button">cancel</button>
+                      <button class="btn secondary-btn add-album" type="submit">save</button>
                   </div>
 
                 </div>
               </div>
             </div>
-            
+            </form>
           </div>
 
           <!-- Content Row -->
@@ -129,3 +131,110 @@
 
   </div>
 {% endblock %}
+
+
+
+{% block extrascript %}
+<script type="text/javascript">
+
+ $('.cancel-btn').on('click', function() {
+    window.history.back();
+  });
+
+
+$('.add-album').click(function(){
+  var album_title = ($("input[name='album_title']").val()).trim();
+  var select_song = $(".select-song").val();
+  var artist = $(".artist").val();
+  var fb_url = ($("input[name='fb_url']").val()).trim();
+  var twitter_url = ($("input[name='twitter_url']").val()).trim();
+  var google_url = ($("input[name='google_url']").val()).trim();
+  var website_url = ($("input[name='website_url']").val()).trim();
+  var submit = true;
+
+  console.log(fb_url,'==========fb_url')
+    url_validate = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+
+    if (album_title==''|| album_title == null){
+        $("input[name='album_title']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='album_title']").css('border', '1px solid #ced4da');
+    }
+
+    if (artist == ''|| artist == null){
+        $('.artist').css('border', '1px solid red');
+          submit = false;
+    }
+
+    else{
+      $('.artist').css('border', '1px solid #ced4da');
+   
+     }
+
+    if (select_song == ''|| select_song == null){
+        $('.select-song').css('border', '1px solid red');
+          submit = false;
+    }
+
+    else{
+      $('.select-song').css('border', '1px solid #ced4da');
+   
+     }
+     if (fb_url ==''|| fb_url == null){
+        $("input[name='fb_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(fb_url)){
+          $("input[name='fb_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='fb_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+
+    if (twitter_url ==''|| twitter_url == null){
+        $("input[name='twitter_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(twitter_url)){
+          $("input[name='twitter_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='twitter_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+
+    if (google_url ==''|| google_url == null){
+        $("input[name='google_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(google_url)){
+          $("input[name='google_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='google_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+
+     if (website_url ==''|| website_url == null){
+        $("input[name='website_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(website_url)){
+          $("input[name='website_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='website_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+    return submit;
+});
+</script>
+
+  {% endblock %}

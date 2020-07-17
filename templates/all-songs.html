@@ -50,6 +50,68 @@
                       </tr>
                     </thead>
                     <tbody>
+                      {% for song in all_song %}
+                      <tr>
+                        <td>
+                          <div class="table-dark-td">{{song.song_title}}</div>
+                          <small class="text-white tbl-sml">Updated 1 day ago</small>
+                        </td>
+                        <td>{% if song.song_length %}{{song.song_length}} {% endif %}</td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">on 24.05.2019</small>
+                        </td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">6:30 PM</small>
+                        </td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">6:30 PM</small>
+                        </td>
+                        <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
+                      </tr>
+                      {% endfor %}
+                     <!--   <tr>
+                        <td>
+                          <div class="table-dark-td">Rock and Roll</div>
+                          <small class="text-white tbl-sml">Updated 1 day ago</small>
+                        </td>
+                        <td>3:45</td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">on 24.05.2019</small>
+                        </td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">6:30 PM</small>
+                        </td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">6:30 PM</small>
+                        </td>
+                        <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="table-dark-td">Rock and Roll</div>
+                          <small class="text-white tbl-sml">Updated 1 day ago</small>
+                        </td>
+                        <td>3:45</td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">on 24.05.2019</small>
+                        </td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">6:30 PM</small>
+                        </td>
+                        <td>
+                          <div class="table-dark-td">12,000</div>
+                          <small class="text-white tbl-sml">6:30 PM</small>
+                        </td>
+                        <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
+                      </tr>
                       <tr>
                         <td>
                           <div class="table-dark-td">Rock and Roll</div>
@@ -90,46 +152,6 @@
                         </td>
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
                       </tr>
-                      <tr>
-                        <td>
-                          <div class="table-dark-td">Rock and Roll</div>
-                          <small class="text-white tbl-sml">Updated 1 day ago</small>
-                        </td>
-                        <td>3:45</td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">on 24.05.2019</small>
-                        </td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">6:30 PM</small>
-                        </td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">6:30 PM</small>
-                        </td>
-                        <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div class="table-dark-td">Rock and Roll</div>
-                          <small class="text-white tbl-sml">Updated 1 day ago</small>
-                        </td>
-                        <td>3:45</td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">on 24.05.2019</small>
-                        </td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">6:30 PM</small>
-                        </td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">6:30 PM</small>
-                        </td>
-                        <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
-                      </tr>
                        <tr>
                         <td>
                           <div class="table-dark-td">Rock and Roll</div>
@@ -149,27 +171,7 @@
                           <small class="text-white tbl-sml">6:30 PM</small>
                         </td>
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
-                      </tr>
-                       <tr>
-                        <td>
-                          <div class="table-dark-td">Rock and Roll</div>
-                          <small class="text-white tbl-sml">Updated 1 day ago</small>
-                        </td>
-                        <td>3:45</td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">on 24.05.2019</small>
-                        </td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">6:30 PM</small>
-                        </td>
-                        <td>
-                          <div class="table-dark-td">12,000</div>
-                          <small class="text-white tbl-sml">6:30 PM</small>
-                        </td>
-                        <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
-                      </tr>
+                      </tr> -->
                       <tr>
                         <td colspan="13" class="text-right">
                           <div class="d-flex mr-4 align-items-center justify-content-end">

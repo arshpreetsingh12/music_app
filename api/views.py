@@ -352,22 +352,29 @@ class SongsAPIView(APIView):
 	def post(self, request):
 		context = {}
 		genre_id = request.data.get('genre_id')
-		album_id = request.data.get('album_id')
-		song = request.data.get('song')
+		artist_id = request.data.get('artist_id')
+		song_title = request.data.get('song_title')
+		song_mp3 = request.data.get('song_mp3')
+		song_image = request.data.get('song_image')
+		song_length = request.data.get('song_length')
+		description = request.data.get('description')
 
-		if not genre_id or not album_id or not song:
+		if not genre_id or not song_title or not song_mp3 or not artist_id or not song_length:
 			context['success'] = False
-			context['message'] = 'album_id, genre_id and song are required fields.'
+			context['message'] = 'song_title, genre_id, song_mp3, song_length and artist_id are required fields.'
 			return Response(context)
 
 		try:
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist:
 				data = {
-					'user': request.user.id,
+					'user': artist_id,
 					'genre': genre_id,
-					'song': song,
-					'album': album_id
+					'song_title':song_title,
+					'song_mp3': song_mp3,
+					'song_image':song_image,
+					'song_length':song_length,
+					'description':description
 				}
 				serializer = SongSerializer(data=data)
 				if serializer.is_valid():
@@ -565,17 +572,31 @@ class AddAlbumAPIView(APIView):
 	def post(self, request):
 		context = {}
 		artist_id = request.data.get('artist_id')
-		album = request.data.get('album')
+		album_name = request.data.get('album_name')
 		album_pic = request.data.get('album_pic')
+		fb_url = request.data.get('fb_url')
+		twitter_url = request.data.get('twitter_url')
+		google_url = request.data.get('google_url')
+		website_url = request.data.get('website_url')
+		description = request.data.get('description')
+		song_id = request.data.get('song_id')
+		album_length = request.data.get('album_length')
 
 		try:
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist: 
-				if artist_id and album:
+				if artist_id and album_name and song_id:
 					data = {
 						'artist': artist_id,
-						'album': album,
-						'album_pic': album_pic
+						'album': album_name,
+						'album_pic': album_pic,
+						'fb_url':fb_url,
+						'twitter_url':twitter_url,
+						'google_url':google_url,
+						'website_url':website_url,
+						'description':description,
+						'song':song_id,
+						'album_length':album_length
 					}
 					serializer = AlbumSerializer(data=data)
 					if serializer.is_valid():
@@ -587,7 +608,7 @@ class AddAlbumAPIView(APIView):
 						context['error'] = serializer.errors
 				else:
 					context['success'] = False
-					context['error'] = "Artist id and album fields are required."
+					context['error'] = "Artist id, song id and album fields are required."
 			else:
 				context['success'] = False
 				context['error'] = "You don't have permission to add album."
