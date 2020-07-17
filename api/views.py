@@ -110,6 +110,7 @@ class RegisterAPIView(APIView):
 				else:
 					uploader = False
 
+				artists = ""
 				normal = False
 				if is_listener == '1' or is_listener == True:
 					normal = True
@@ -337,6 +338,7 @@ class SongsAPIView(APIView):
 		return Response(context)	
 
 	def delete(self, request):
+		dictV = {}
 		data = request.data.get('id')
 		try:
 			user = UserDetail.objects.get(user_id = request.user.id)
@@ -351,13 +353,13 @@ class SongsAPIView(APIView):
 					status = False
 					message = 'Id is required.'
 			else:
-				context['success'] = False
-				context['error'] = "You don't have permission to add song."
+				status = False
+				message = "You don't have permission to add song."
 		except Song.DoesNotExist:
 		    status = True
 		    message = 'Song does not exist.'
 
-		dictV = {}
+		
 		dictV['status'] = status
 		dictV['message'] = message
 		return Response(dictV)
