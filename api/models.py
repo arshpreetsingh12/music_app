@@ -49,6 +49,7 @@ class ArtistInfo(models.Model):
 	info = models.OneToOneField(UserDetail, on_delete=models.CASCADE)
 	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 	country = models.ForeignKey(Country, on_delete=models.CASCADE, null = True, blank = True)
+	# country = models.CharField(max_length=250, null = True, blank = True)
 	website = models.CharField(max_length=250)
 	company_label = models.CharField(max_length=500)
 	social_media = models.CharField(max_length=500)

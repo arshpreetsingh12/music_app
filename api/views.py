@@ -210,6 +210,25 @@ class CountryList(APIView):
 			context['message'] = "Something went wrong, Please try again"	
 		return Response(context)	
 
+
+""" Country List """ 
+class GenreList(APIView):
+	def get(self, request):
+		context = {}
+		try:
+			qs = Genre.objects.all()
+			if qs:
+				serializer = GenreSerializer(qs, many=True)
+				context['success'] = True
+				context['data'] = serializer.data
+			else:
+				context['success'] = True
+				context['message'] = "No Genre found."
+		except Exception as e:
+			context['success'] = False
+			context['message'] = "Something went wrong, Please try again"	
+		return Response(context)	
+
 """ Login View """ 
 class LoginAPIView(ObtainAuthToken):
 	authentication_classes = ()
