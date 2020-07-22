@@ -18,7 +18,6 @@ from django.urls import path, include
 from .views import *
 
 urlpatterns = [
-    path('', HomeAPIView.as_view()),
     path('register', RegisterAPIView.as_view()),
     path('login', LoginAPIView.as_view()),
     path('logout', LogoutAPIView.as_view()),
@@ -50,6 +49,12 @@ urlpatterns = [
     path('my-following', MyFollowingList.as_view()),
     path('country-list', CountryList.as_view()),
     path('genre-list', GenreList.as_view()),
+    path('artist-list', AllArtist.as_view()),
+
+    ## password update apis ###
+    path('change-password', ChangePasswordApi.as_view()),
+    path('forget-password', ForgetPasswordLinkAPIView.as_view()),
+    path('reset-password', ResetPasswordAPIView.as_view()),
 
 
 ]

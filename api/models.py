@@ -25,8 +25,6 @@ class UserDetail(models.Model):
 class Country(models.Model):
 	country_code = models.CharField(max_length=50, null = True, blank = True)
 	country_name = models.CharField(max_length=50, null = True, blank = True)
-	created_at  = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return self.country_code
@@ -37,8 +35,6 @@ class Genre(models.Model):
 	genre = models.CharField(max_length=50)
 	genre_color = models.CharField(max_length=50,null = True, blank = True)
 	color_hexcode = models.CharField(max_length=50,null = True, blank = True)
-	created_at  = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return self.genre
@@ -49,7 +45,6 @@ class ArtistInfo(models.Model):
 	info = models.OneToOneField(UserDetail, on_delete=models.CASCADE)
 	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 	country = models.ForeignKey(Country, on_delete=models.CASCADE, null = True, blank = True)
-	# country = models.CharField(max_length=250, null = True, blank = True)
 	website = models.CharField(max_length=250)
 	company_label = models.CharField(max_length=500)
 	social_media = models.CharField(max_length=500)
@@ -77,7 +72,6 @@ class Song(models.Model):
 """ When uploader upload any album that object saved in this table  """
 class Album(models.Model):
 	artist = models.ForeignKey(UserDetail, blank=True, null=True, on_delete=models.CASCADE)
-	song = models.ForeignKey(Song, blank=True, null=True, on_delete=models.CASCADE)
 	album = models.CharField(max_length=50)
 	album_pic = models.ImageField(blank=True, null=True)
 	album_length = models.CharField(max_length=50, null = True, blank = True)
@@ -91,6 +85,14 @@ class Album(models.Model):
 
 	def __str__(self):
 		return self.album
+
+""" When uploader upload any album that object saved in this table  """
+class AlbumSongs(models.Model):
+	albums = models.ForeignKey(Album, blank=True, null=True, on_delete=models.CASCADE)
+	song = models.ForeignKey(Song, blank=True, null=True, on_delete=models.CASCADE)
+
+	# def __str__(self):
+	# 	return self.albums.album
 
 
 """ When user like any artist that object saved in this table """
@@ -161,3 +163,10 @@ class Follwer(models.Model):
 		return self.follower_user.first_name
 
 
+class ForgetPassword(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User')
+	activation_key = models.CharField(max_length=100, verbose_name='Activation Key')
+	created_at  = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return self.user.first_name 

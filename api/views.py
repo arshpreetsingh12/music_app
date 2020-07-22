@@ -12,14 +12,7 @@ from django.contrib.auth import login, logout, authenticate
 from rest_framework.authentication import TokenAuthentication
 from .serializers import *
 from rest_framework import generics
-
-
-class HomeAPIView(APIView):
-	def get(self, request):
-		context = {}
-		context['success'] = True
-		context['message'] = 'On homepage'
-		return Response(context)
+import uuid
 
 
 """ 
@@ -349,6 +342,22 @@ class SongsAPIView(APIView):
 	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
+	def get(self, request):
+		context = {}
+		try:
+			qs = Song.objects.filter(delete = False)
+			if not qs:
+				context['success'] = True
+				context['data'] = "Songs not found."		
+				return Response(context)
+			serializer = SongSerializer(qs, many=True)
+			context['success'] = True
+			context['data'] = serializer.data		
+		except Exception as e:
+			context['success'] = False
+			context['message'] = 'Something went wrong'		
+		return Response(context)	
+
 	def post(self, request):
 		context = {}
 		genre_id = request.data.get('genre_id')
@@ -419,6 +428,58 @@ class SongsAPIView(APIView):
 		dictV['message'] = message
 		return Response(dictV)
 
+
+	def put(self, request):
+		dictV = {}
+		song_id = request.data.get('id')
+		try:
+			user = UserDetail.objects.get(user_id = request.user.id)
+			if user.is_artist:
+				if song_id:
+				    obj = Song.objects.get(pk=song_id, delete=False)
+				    serializer = SongSerializer(obj, data=request.data, partial=True)
+				    if serializer.is_valid():
+				    	serializer.save()
+				    	status = True
+				    	message = 'Song successfully updated.'
+				    else:
+				    	status = False
+				    	message = serializer.errors
+				else:
+					status = False
+					message = 'Id is required.'
+			else:
+				status = False
+				message = "You don't have permission to add song."
+		except Song.DoesNotExist:
+		    status = True
+		    message = 'Song does not exist.'
+	
+		dictV['status'] = status
+		dictV['message'] = message
+		return Response(dictV)
+	
+
+"""
+	This view for artist list.
+							 """
+class AllArtist(APIView):
+
+	def get(self, request):
+		context = {}
+		try:
+			qs = UserDetail.objects.filter(is_artist = True)
+			if not qs:
+				context['success'] = True
+				context['data'] = "Artist not found."		
+				return Response(context)
+			serializer = UserDetailSerializer(qs, many=True)
+			context['success'] = True
+			context['data'] = serializer.data		
+		except Exception as e:
+			context['success'] = False
+			context['message'] = 'Something went wrong'		
+		return Response(context)
 
 """
 	This view for like artist.
@@ -586,6 +647,9 @@ class AddAlbumAPIView(APIView):
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist: 
 				if artist_id and album_name and song_id:
+
+					songs = song_id.split(',')
+
 					data = {
 						'artist': artist_id,
 						'album': album_name,
@@ -595,14 +659,28 @@ class AddAlbumAPIView(APIView):
 						'google_url':google_url,
 						'website_url':website_url,
 						'description':description,
-						'song':song_id,
+						# 'song':song,
 						'album_length':album_length
 					}
 					serializer = AlbumSerializer(data=data)
+					album_id = ''
 					if serializer.is_valid():
 						serializer.save()
-						context['success'] = True
-						context['message'] = 'Album successfully added.'
+						album_id = serializer.data['id']
+						for song in songs:
+							song_data = {
+								'albums':album_id,
+								'song':song
+							}
+							song_serializer = AlbumSongsSerializser(data=song_data)
+							if song_serializer.is_valid():
+								song_serializer.save()
+								context['success'] = True
+								context['message'] = 'Album successfully added.'
+							else:
+								context['success'] = False
+								context['error'] = song_serializer.errors
+
 					else:
 						context['success'] = False
 						context['error'] = serializer.errors
@@ -617,6 +695,71 @@ class AddAlbumAPIView(APIView):
 			context['message'] = 'Something went wrong.'		
 		return Response(context)
 
+
+	def delete(self, request):
+		dictV = {}
+		album_id = request.data.get('album_id')
+		try:
+			if album_id:
+				album_obj = Album.objects.filter(pk = album_id).delete()
+				dictV['success'] = True
+				dictV['data'] = "Album successfully deleted."
+			else:
+				dictV['success'] = False
+				dictV['data'] = "Id is required."
+		except Song.DoesNotExist:
+			dictV['success'] = False
+			dictV['data'] = "Album does not exist."
+
+		except Exception as e:
+			dictV['success'] = False
+			dictV['message'] = "Something went wrong, Please try again."
+		return Response(dictV)
+
+
+	# def put(self, request):
+	# 	dictV = {}
+	# 	album_id = request.data.get('album_id')
+	# 	song_id = request.data.get('song_id')
+	# 	try:
+	# 		user = UserDetail.objects.get(user_id = request.user.id)
+	# 		if user.is_artist:
+	# 			if album_id:
+	# 			    obj = Album.objects.get(pk = album_id)
+	# 			    serializer = AlbumSerializer(obj, data=request.data, partial=True)
+	# 			    if serializer.is_valid():
+	# 			    	serializer.save()
+	# 			    	songs = song_id.split(',')
+	# 			    	if songs:
+	# 			    		for song in songs:
+	# 							song_data = {
+	# 								'albums':album_id,
+	# 								'song':song
+	# 							}
+	# 							song_serializer = AlbumSongsSerializser(data=song_data)
+	# 							if song_serializer.is_valid():
+	# 								song_serializer.save()
+	# 								status = True
+	# 								message = 'Album successfully added.'
+	# 							else:
+	# 								status = False
+	# 								message = song_serializer.errors
+	# 			    else:
+	# 			    	status = False
+	# 			    	message = serializer.errors
+	# 			else:
+	# 				status = False
+	# 				message = 'Id is required.'
+	# 		else:
+	# 			status = False
+	# 			message = "You don't have permission to add song."
+	# 	except Song.DoesNotExist:
+	# 	    status = True
+	# 	    message = 'Song does not exist.'
+	
+	# 	dictV['status'] = status
+	# 	dictV['message'] = message
+	# 	return Response(dictV)
 
 """
 	This view for get songs.
@@ -700,6 +843,127 @@ def mailSend(subject, recipient_list, message="", html_message=""):
 		return True
 	except Exception as e:
 		return False	
+
+
+
+"""
+	This view for change password.
+							 		"""
+class ChangePasswordApi(APIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
+	def put(self, request):		
+		context = {}
+		new_password = request.data.get('new_password')
+		try:
+			if new_password:
+				user = User.objects.get(pk = request.user.id)
+				user.set_password(new_password)
+				user.save()
+				context['status'] = True
+				context['message'] = 'Password successfully updated.'
+
+			else:
+				context['status'] = False
+				context['message'] = 'Please enter new password'	
+		except Exception as e:
+			context['status'] = False
+			context['message'] = 'Something went wrong'		
+		return Response(context)
+
+
+"""
+	Send forget password link.
+				    			"""
+class ForgetPasswordLinkAPIView(APIView):
+
+	def post(self, request):
+		context = {}
+		email = request.data.get('email')
+		if not email:
+			context['status'] = False
+			context['message'] = "Please enter email"
+			return Response(context)	
+		try:
+			activation_key = str(uuid.uuid4())[:18].replace("-", "")
+			user = User.objects.get(email=email)
+			data = {
+				'user':request.user.id,
+				'activation_key':activation_key
+			}
+			fg_pwd = ForgetPasswordSerializser(data = data)
+
+			if fg_pwd.is_valid():
+				fg_pwd.save()
+
+				subject = 'Reset Password Link'
+				link = settings.BASE_URL+"/api/reset-password"
+				recipient = [email]
+				message = f""" \r\n
+
+				Please click on this link to reset password \r\n
+				activation link {activation_key} \r\n
+
+						{link} \r\n
+
+				"""
+
+				mail_status = mailSend(subject, recipient, message)
+				if mail_status:
+					context['status'] = True
+					context['message'] = 'Please check your mail for more information.'
+				else:
+					context['status'] = False
+					context['message'] = "Some error occur. Retry or contact with administrator."
+			else:
+				context['status'] = False
+				context['error'] = fg_pwd.errors
+			
+		
+		except User.DoesNotExist:
+			context['status'] = False
+			context['message'] = "This email address is not registred."	
+		except Exception as e:
+			context['status'] = False
+			context['message'] = "Something went wrong, Please try again"	
+		return Response(context)
+
+
+"""
+	Reset password
+				    """
+class ResetPasswordAPIView(APIView):
+
+	def post(self, request):
+		context = {}
+		activation_key = request.data.get('activation_key')
+		new_password = request.data.get('new_password')
+
+		if not activation_key:
+			context['status'] = False
+			context['message'] = "Please enter activation_key"
+			return Response(context)
+
+		if not new_password:
+			context['status'] = False
+			context['message'] = "Please enter password"
+			return Response(context)
+		try:
+			fg_pwd = ForgetPassword.objects.get(activation_key = activation_key)
+			user = User.objects.get(email = fg_pwd.user.email)
+			user.set_password(new_password)
+			user.save()
+			fg_pwd.delete()
+			context['status'] = True
+			context['message'] = 'Password successfully changed.'						
+		
+		except ForgetPassword.DoesNotExist:
+			context['status'] = False
+			context['message'] = "Invalid activation key."	
+		except Exception as e:
+			context['status'] = False
+			context['message'] = "Something went wrong, Please try again"	
+		return Response(context)
 
 
 """

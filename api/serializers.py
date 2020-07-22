@@ -112,3 +112,21 @@ class CountrySerializser(serializers.ModelSerializer):
 	class Meta:
 		model = Country
 		fields = '__all__'		
+
+
+class AlbumSongsSerializser(serializers.ModelSerializer):
+	
+	class Meta:
+		model = AlbumSongs
+		fields = '__all__'		
+
+
+class ForgetPasswordSerializser(serializers.ModelSerializer):
+	
+	class Meta:
+		model = ForgetPassword
+		fields = '__all__'		
+
+
+
+
