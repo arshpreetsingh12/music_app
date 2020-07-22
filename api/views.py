@@ -630,6 +630,24 @@ class LikeSongAPIView(APIView):
 class AddAlbumAPIView(APIView):
 	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
+
+	def get(self, request):
+		context = {}
+		user_id = request.user.id
+		try:
+			qs = Album.objects.all()
+			if not qs:
+				context['success'] = False
+				context['data'] = "album not found."		
+				return Response(context)
+			serializer = AlbumSerializer(qs, many=True)
+			context['success'] = True
+			context['data'] = serializer.data	
+		except Exception as e:
+			context['success'] = False
+			context['message'] = 'Something went wrong'		
+		return Response(context)
+
 	def post(self, request):
 		context = {}
 		artist_id = request.data.get('artist_id')
