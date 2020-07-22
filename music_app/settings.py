@@ -73,7 +73,8 @@ TEMPLATES = [
 
 
 
-BASE_URL="http://127.0.0.1:8000"
+# BASE_URL="http://127.0.0.1:8000"
+BASE_URL="http://18.224.181.57:1234"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

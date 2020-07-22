@@ -888,7 +888,7 @@ class ForgetPasswordLinkAPIView(APIView):
 			activation_key = str(uuid.uuid4())[:18].replace("-", "")
 			user = User.objects.get(email=email)
 			data = {
-				'user':request.user.id,
+				'user':user.id,
 				'activation_key':activation_key
 			}
 			fg_pwd = ForgetPasswordSerializser(data = data)
