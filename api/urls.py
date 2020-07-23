@@ -27,6 +27,8 @@ urlpatterns = [
     path('album', AddAlbumAPIView.as_view()),
     path('get-songs', GetSongsAPIView.as_view()),
 
+    path('album/<album_id>', AlbumDetail.as_view(),name="album_detail"),
+
     path('send-login-link', SendLoginLinkAPIView.as_view()),
     
     # path('user-add-song', UserAddSongAPIView.as_view()),

@@ -632,6 +632,7 @@ class AddAlbumAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		context = {}
 		user_id = request.user.id
 		try:
@@ -778,6 +779,30 @@ class AddAlbumAPIView(APIView):
 	# 	dictV['status'] = status
 	# 	dictV['message'] = message
 	# 	return Response(dictV)
+
+class AlbumDetail(APIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request, album_id):
+		context = {}
+		user_id = request.user.id
+		try:
+			qs = Album.objects.get(pk = album_id)
+			album = AlbumSerializer(qs)
+			album_songs = AlbumSongs.objects.filter(albums = qs)
+			if not album_songs:
+				context['status'] = False
+				context['data'] = "songs not found."		
+				return Response(context)
+			serializer = AlbumSongsSerializser(album_songs, many=True)
+			context['status'] = True
+			context['album'] = album.data
+			context['songs'] = serializer.data	
+		except Exception as e:
+			context['status'] = False
+			context['message'] = 'Something went wrong'		
+		return Response(context)
 
 """
 	This view for get songs.
