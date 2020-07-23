@@ -72,6 +72,7 @@ class Song(models.Model):
 """ When uploader upload any album that object saved in this table  """
 class Album(models.Model):
 	artist = models.ForeignKey(UserDetail, blank=True, null=True, on_delete=models.CASCADE)
+	song = models.ManyToManyField(Song)
 	album = models.CharField(max_length=50)
 	album_pic = models.ImageField(blank=True, null=True)
 	album_length = models.CharField(max_length=50, null = True, blank = True)
@@ -87,9 +88,9 @@ class Album(models.Model):
 		return self.album
 
 """ When uploader upload any album that object saved in this table  """
-class AlbumSongs(models.Model):
-	albums = models.ForeignKey(Album, blank=True, null=True, on_delete=models.CASCADE)
-	song = models.ForeignKey(Song, blank=True, null=True, on_delete=models.CASCADE)
+# class AlbumSongs(models.Model):
+# 	albums = models.ForeignKey(Album, blank=True, null=True, on_delete=models.CASCADE)
+# 	song = models.ForeignKey(Song, blank=True, null=True, on_delete=models.CASCADE)
 
 	# def __str__(self):
 	# 	return self.albums.album

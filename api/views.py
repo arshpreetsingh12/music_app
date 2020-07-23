@@ -345,7 +345,11 @@ class SongsAPIView(APIView):
 	def get(self, request):
 		context = {}
 		try:
-			qs = Song.objects.filter(delete = False)
+			user = UserDetail.objects.get(user_id = request.user.id)
+			if user.is_artist:
+				qs = Song.objects.filter(user = user, delete = False)
+			else:
+				qs = Song.objects.filter(delete = False)
 			if not qs:
 				context['success'] = True
 				context['data'] = "Songs not found."		
@@ -361,14 +365,13 @@ class SongsAPIView(APIView):
 	def post(self, request):
 		context = {}
 		genre_id = request.data.get('genre_id')
-		artist_id = request.data.get('artist_id')
 		song_title = request.data.get('song_title')
 		song_mp3 = request.data.get('song_mp3')
 		song_image = request.data.get('song_image')
 		song_length = request.data.get('song_length')
 		description = request.data.get('description')
 
-		if not genre_id or not song_title or not song_mp3 or not artist_id or not song_length:
+		if not genre_id or not song_title or not song_mp3 or not song_length:
 			context['success'] = False
 			context['message'] = 'song_title, genre_id, song_mp3, song_length and artist_id are required fields.'
 			return Response(context)
@@ -377,7 +380,7 @@ class SongsAPIView(APIView):
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist:
 				data = {
-					'user': artist_id,
+					'user': user.id,
 					'genre': genre_id,
 					'song_title':song_title,
 					'song_mp3': song_mp3,
@@ -408,7 +411,7 @@ class SongsAPIView(APIView):
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist:
 				if data:
-				    obj = Song.objects.get(pk=data, delete=False)
+				    obj = Song.objects.get(pk=data,user_id = request.user.id, delete=False)
 				    obj.delete = True
 				    obj.save()
 				    status = True
@@ -418,7 +421,7 @@ class SongsAPIView(APIView):
 					message = 'Id is required.'
 			else:
 				status = False
-				message = "You don't have permission to add song."
+				message = "You don't have permission to delete song."
 		except Song.DoesNotExist:
 		    status = True
 		    message = 'Song does not exist.'
@@ -436,7 +439,7 @@ class SongsAPIView(APIView):
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist:
 				if song_id:
-				    obj = Song.objects.get(pk=song_id, delete=False)
+				    obj = Song.objects.get(pk=song_id,user_id = request.user.id, delete=False)
 				    serializer = SongSerializer(obj, data=request.data, partial=True)
 				    if serializer.is_valid():
 				    	serializer.save()
@@ -632,11 +635,14 @@ class AddAlbumAPIView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
-		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		context = {}
 		user_id = request.user.id
 		try:
-			qs = Album.objects.all()
+			user = UserDetail.objects.get(user_id = user_id)
+			if user.is_artist:
+				qs = Album.objects.filter(artist = user)
+			else:
+				qs = Album.objects.all()
 			if not qs:
 				context['success'] = False
 				context['data'] = "album not found."		
@@ -665,12 +671,12 @@ class AddAlbumAPIView(APIView):
 		try:
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist: 
-				if artist_id and album_name and song_id:
+				if album_name and song_id:
 
 					songs = song_id.split(',')
 
 					data = {
-						'artist': artist_id,
+						'artist': user.id,
 						'album': album_name,
 						'album_pic': album_pic,
 						'fb_url':fb_url,
@@ -678,34 +684,20 @@ class AddAlbumAPIView(APIView):
 						'google_url':google_url,
 						'website_url':website_url,
 						'description':description,
-						# 'song':song,
+						'song':songs,
 						'album_length':album_length
 					}
 					serializer = AlbumSerializer(data=data)
-					album_id = ''
 					if serializer.is_valid():
 						serializer.save()
-						album_id = serializer.data['id']
-						for song in songs:
-							song_data = {
-								'albums':album_id,
-								'song':song
-							}
-							song_serializer = AlbumSongsSerializser(data=song_data)
-							if song_serializer.is_valid():
-								song_serializer.save()
-								context['success'] = True
-								context['message'] = 'Album successfully added.'
-							else:
-								context['success'] = False
-								context['error'] = song_serializer.errors
-
+						context['success'] = True
+						context['message'] = 'Album successfully added.'
 					else:
 						context['success'] = False
 						context['error'] = serializer.errors
 				else:
 					context['success'] = False
-					context['error'] = "Artist id, song id and album fields are required."
+					context['error'] = "song id and album fields are required."
 			else:
 				context['success'] = False
 				context['error'] = "You don't have permission to add album."
@@ -719,20 +711,25 @@ class AddAlbumAPIView(APIView):
 		dictV = {}
 		album_id = request.data.get('album_id')
 		try:
-			if album_id:
-				album_obj = Album.objects.filter(pk = album_id).delete()
-				dictV['success'] = True
-				dictV['data'] = "Album successfully deleted."
+			user = UserDetail.objects.get(user_id = request.user.id)
+			if user.is_artist: 
+				if album_id:
+					album_obj = Album.objects.filter(pk = album_id).delete()
+					dictV['status'] = True
+					dictV['data'] = "Album successfully deleted."
+				else:
+					dictV['status'] = False
+					dictV['error'] = "Id is required."
 			else:
-				dictV['success'] = False
-				dictV['data'] = "Id is required."
+				context['success'] = False
+				context['error'] = "You don't have permission to add album."
 		except Song.DoesNotExist:
-			dictV['success'] = False
+			dictV['status'] = False
 			dictV['data'] = "Album does not exist."
 
 		except Exception as e:
-			dictV['success'] = False
-			dictV['message'] = "Something went wrong, Please try again."
+			dictV['status'] = False
+			dictV['error'] = "Something went wrong, Please try again."
 		return Response(dictV)
 
 
@@ -1178,53 +1175,6 @@ class ListSongsByPlaylistAPIView(APIView):
 
 ########## for logged in artist user ############
 
-"""
-	This view for get logged in artist's song list.
-							      	     		    """
-
-class ArtistSongList(APIView):
-
-	authentication_classes = (TokenAuthentication,)
-	permission_classes = [IsAuthenticated]
-
-	def get(self, request):
-		dictV = {}
-		try:
-			songs = Song.objects.filter(album__artist_id = request.user.id, delete = False)
-			if songs:
-				serializer = SongSerializer(songs, many=True)
-				dictV['success'] = True
-				dictV['data'] = serializer.data
-			else:
-				dictV['success'] = True
-				dictV['data'] = 'Songs not found.'
-		except Exception as e:
-			dictV['success'] = False
-			dictV['data'] = "Some thing went wrong."
-		return Response(dictV)
-
-
-	def delete(self, request):
-		dictV = {}
-		song_id = request.data.get('song_id')
-		try:
-			if song_id:
-				song_obj = Song.objects.get(album__artist_id = request.user.id, delete = False, id = song_id)
-				song_obj.delete = True
-				song_obj.save()
-				dictV['success'] = True
-				dictV['data'] = "Song successfully deleted."
-			else:
-				dictV['success'] = False
-				dictV['data'] = "Id is required."
-		except Song.DoesNotExist:
-			dictV['success'] = False
-			dictV['data'] = "Song does not exist."
-
-		except Exception as e:
-			dictV['success'] = False
-			dictV['message'] = "Something went wrong, Please try again."
-		return Response(dictV)
 
 """
 	All User's list.

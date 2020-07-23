@@ -60,7 +60,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class SongSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Song
-		fields = '__all__'	
+		fields = ['user','genre','song_title','song_length','song_image','song_mp3','delete','description']	
 
 
 class LikeArtistSerializer(serializers.ModelSerializer):
@@ -81,7 +81,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class AlbumSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Album	
-		fields = '__all__'
+		fields = ['artist','song','album','album_pic','album_length','fb_url','twitter_url','google_url','website_url','description']
 
 class HideSongSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -114,11 +114,11 @@ class CountrySerializser(serializers.ModelSerializer):
 		fields = '__all__'		
 
 
-class AlbumSongsSerializser(serializers.ModelSerializer):
+# class AlbumSongsSerializser(serializers.ModelSerializer):
 	
-	class Meta:
-		model = AlbumSongs
-		fields = '__all__'		
+# 	class Meta:
+# 		model = AlbumSongs
+# 		fields = '__all__'		
 
 
 class ForgetPasswordSerializser(serializers.ModelSerializer):

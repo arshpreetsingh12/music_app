@@ -44,8 +44,6 @@ urlpatterns = [
     path('song-to-playlist', PlaylistTrackAPIView.as_view()),
     path('songs-by-playlist', ListSongsByPlaylistAPIView.as_view()),
 
-    path('artist-song', ArtistSongList.as_view()),
-
     path('user-list', UserList.as_view()),
     path('my-follower', MyFollowerList.as_view()),
     path('my-following', MyFollowingList.as_view()),
