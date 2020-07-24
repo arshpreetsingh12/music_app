@@ -411,7 +411,7 @@ class SongsAPIView(APIView):
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist:
 				if data:
-				    obj = Song.objects.get(pk=data,user_id = request.user.id, delete=False)
+				    obj = Song.objects.get(pk=data,user = user, delete=False)
 				    obj.delete = True
 				    obj.save()
 				    status = True
@@ -785,20 +785,23 @@ class AlbumDetail(APIView):
 		context = {}
 		user_id = request.user.id
 		try:
-			qs = Album.objects.get(pk = album_id)
-			album = AlbumSerializer(qs)
-			album_songs = AlbumSongs.objects.filter(albums = qs)
-			if not album_songs:
+			user = UserDetail.objects.get(user_id = user_id)
+			if user.is_artist:
+				qs = Album.objects.get(pk = album_id,artist = user)
+			else:
+				qs = Album.objects.get(pk = album_id)
+			
+			if not qs:
 				context['status'] = False
-				context['data'] = "songs not found."		
+				context['data'] = "User have no album."		
 				return Response(context)
-			serializer = AlbumSongsSerializser(album_songs, many=True)
+			album = AlbumSerializer(qs)
 			context['status'] = True
 			context['album'] = album.data
-			context['songs'] = serializer.data	
+
 		except Exception as e:
 			context['status'] = False
-			context['message'] = 'Something went wrong'		
+			context['message'] = "User have no album."
 		return Response(context)
 
 """
