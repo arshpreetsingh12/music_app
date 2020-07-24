@@ -284,12 +284,14 @@ class AddAlbum(LoginRequiredMixin,View):
 		fb_url = request.POST.get('fb_url')
 		album_title = request.POST.get('album_title')
 		album_pic = request.FILES.get('album_pic')
+		selected_song = request.POST.getlist('selected_song')
 
 		try:
 			add_album = Album.objects.create(
 				artist_id = artist,
-				album = album_title
+				album = album_title,
 				)
+			add_album.song.set(selected_song)
 			if album_pic:
 				add_album.album_pic = album_pic
 			
