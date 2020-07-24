@@ -84,7 +84,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Select Album Songs</label>
-                        <select class="form-control select-song" id="exampleFormControlSelect1">
+                        <select class="form-control select-song selectpicker2" id="exampleFormControlSelect1" multiple>
                           <option></option>
                           {% for song in songs %}
                           <option>{{song.song_title}}</option>
@@ -234,6 +234,9 @@ $('.add-album').click(function(){
         }
     }
     return submit;
+});
+  $(function () {
+    $('.selectpicker2').selectpicker();
 });
 </script>
 
