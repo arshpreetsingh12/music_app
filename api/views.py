@@ -332,6 +332,33 @@ class EditUserAPIView(APIView):
 		except Exception as e:
 			context['success'] = False	
 			context['message'] = str(e)
+		return Response(context)
+
+
+""" 
+	Logged in user can edit their profile.
+    						  			   """ 
+class UserInformation(APIView):
+	authentication_classes = (TokenAuthentication,)
+	permissions_classes = [IsAuthenticated]
+	def get(self, request):
+		context = {}
+		
+		try:
+			user = UserDetail.objects.get(user_id=request.user.id)
+			serializer = UserSerializer(request.user)
+			userdetail = UserDetailSerializer(user)
+			context['status'] = True	
+			context['data'] =  serializer.data
+			context['detail'] =  userdetail.data
+			if user.is_artist:
+				artist_info = ArtistInfo.objects.get(info = user)
+				artist = ArtistInfoSerializer(artist_info)
+				context['artist_info'] = artist.data
+
+		except Exception as e:
+			context['status'] = False	
+			context['message'] = "Something went wrong."
 		return Response(context)				
 
 """ 
@@ -345,9 +372,12 @@ class SongsAPIView(APIView):
 	def get(self, request):
 		context = {}
 		try:
-			user = UserDetail.objects.get(user_id = request.user.id)
-			if user.is_artist:
-				qs = Song.objects.filter(user = user, delete = False)
+			if not request.user.is_superuser or not request.user.is_staff:
+				user = UserDetail.objects.get(user_id = request.user.id)
+				if user.is_artist:
+					qs = Song.objects.filter(user = user, delete = False)
+				else:
+					qs = Song.objects.filter(delete = False)
 			else:
 				qs = Song.objects.filter(delete = False)
 			if not qs:
@@ -638,9 +668,12 @@ class AddAlbumAPIView(APIView):
 		context = {}
 		user_id = request.user.id
 		try:
-			user = UserDetail.objects.get(user_id = user_id)
-			if user.is_artist:
-				qs = Album.objects.filter(artist = user)
+			if not request.user.is_superuser or not request.user.is_staff:
+				user = UserDetail.objects.get(user_id = user_id)
+				if user.is_artist:
+					qs = Album.objects.filter(artist = user)
+				else:
+					qs = Album.objects.all()
 			else:
 				qs = Album.objects.all()
 			if not qs:
@@ -785,15 +818,18 @@ class AlbumDetail(APIView):
 		context = {}
 		user_id = request.user.id
 		try:
-			user = UserDetail.objects.get(user_id = user_id)
-			if user.is_artist:
-				qs = Album.objects.get(pk = album_id,artist = user)
+			if not request.user.is_superuser or not request.user.is_staff:
+				user = UserDetail.objects.get(user_id = user_id)
+				if user.is_artist:
+					qs = Album.objects.get(pk = album_id,artist = user)
+				else:
+					qs = Album.objects.get(pk = album_id)
 			else:
 				qs = Album.objects.get(pk = album_id)
 			
 			if not qs:
 				context['status'] = False
-				context['data'] = "User have no album."		
+				context['data'] = "No album found."		
 				return Response(context)
 			album = AlbumSerializer(qs)
 			context['status'] = True

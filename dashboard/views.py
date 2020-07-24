@@ -10,8 +10,10 @@ from django.db.models import Q
 from django.urls import reverse
 from datetime import datetime,date,timedelta
 from .models import *
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class HomePage(View):
+class HomePage(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'dashbaord.html'
 
 	def get(self,request):
@@ -65,7 +67,17 @@ class LoginView(View):
 			return HttpResponseRedirect(reverse('web_login'))
 
 
-class UserInfo(View):
+""" 
+	This view for user logout  
+								"""
+class Logout(View):
+
+	def get(self, request, *args, **kwargs):
+		logout(request)
+		return HttpResponseRedirect(reverse('web_login'))
+
+class UserInfo(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'artist_info.html'
 
 	def get(self,request):
@@ -76,7 +88,8 @@ class UserInfo(View):
 """ 
 	listener user list 
 							"""
-class ListenerUsers(View):
+class ListenerUsers(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'listener_users.html'
 
 	def get(self,request):
@@ -87,7 +100,8 @@ class ListenerUsers(View):
 """ 
 	Artist user list 
 					  """
-class ArtistUsers(View):
+class ArtistUsers(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'artist_users.html'
 
 	def get(self,request):
@@ -98,7 +112,8 @@ class ArtistUsers(View):
 """ 
 	Admin user list 
 					  """
-class AdminUsers(View):
+class AdminUsers(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'admin-users.html'
 
 	def get(self,request):
@@ -109,7 +124,8 @@ class AdminUsers(View):
 """ 
 	 GenreList list 
 					"""
-class GeneresList(View):
+class GeneresList(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'genre_list.html'
 
 	def get(self,request):
@@ -118,15 +134,26 @@ class GeneresList(View):
 
 
 """ Add New Songs """
-class AllSongs(View):
+class AllSongs(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'all-songs.html'
 
 	def get(self,request):
-		all_song = Song.objects.all()
+		try:
+			if request.user.is_superuser or request.user.is_staff:
+				all_song = Song.objects.all()
+			else:
+				user = UserDetail.objects.get(user_id = request.user.id)
+				if user.is_artist:
+					all_song = Song.objects.filter(user = user)
+		except Exception as e:
+			pass
+		
 		return render(request,self.template_name,locals())
 
 """ Add New Songs """
-class AddNewSongs(View):
+class AddNewSongs(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'add-new-songs.html'
 
 	def get(self,request):
@@ -163,7 +190,8 @@ class AddNewSongs(View):
 		return HttpResponseRedirect(reverse('add_new_song'))
 
 """ Admin profile """
-class AdminProfile(View):
+class AdminProfile(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'admin-profile.html'
 
 	def get(self,request):
@@ -171,7 +199,8 @@ class AdminProfile(View):
 	
 
 """ Add New Admin """
-class AddAdmin(View):
+class AddAdmin(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'add-new-admin.html'
 
 	def get(self,request):
@@ -212,22 +241,32 @@ class AddAdmin(View):
 				address = address
 				)
 
-			messages.info(request, "User successfully added.")
+			messages.success(request, "User successfully added.")
 		return HttpResponseRedirect(reverse('add_admin'))
 
 
 
 """ Add New Album """
-class AllAlbums(View):
+class AllAlbums(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'all-albums.html'
 
 	def get(self,request):
-		all_albums = Album.objects.all()
+		try:
+			if request.user.is_superuser or request.user.is_staff:
+				all_albums = Album.objects.all()
+			else:
+				user = UserDetail.objects.get(user_id = request.user.id)
+				if user.is_artist:
+					all_albums = Album.objects.filter(artist = user)
+		except Exception as e:
+			pass
 		return render(request,self.template_name,locals())	
 
 
 """ Add New Album """
-class AddAlbum(View):
+class AddAlbum(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'add-album.html'
 
 	def get(self,request):
@@ -272,14 +311,14 @@ class AddAlbum(View):
 
 		except Exception as e:
 			print(e)
-
 			messages.error(request, "Something went wrong.")
 		return HttpResponseRedirect(reverse('add_album'))
 
 
 
 """ Add New Playlist """
-class Financial(View):
+class Financial(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'finacial.html'
 
 	def get(self,request):
@@ -287,7 +326,8 @@ class Financial(View):
 
 
 """ Add New Playlist """
-class AddNewPlaylist(View):
+class AddNewPlaylist(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'add-playlist.html'
 
 	def get(self,request):
@@ -321,7 +361,8 @@ class AddNewPlaylist(View):
 
 
 """ Add New Playlist """
-class AllPlayList(View):
+class AllPlayList(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'playlist.html'
 
 	def get(self,request):
@@ -330,7 +371,8 @@ class AllPlayList(View):
 
 
 """ Add New Playlist """
-class PromostionView(View):
+class PromostionView(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'promostion.html'
 
 	def get(self,request):
@@ -338,14 +380,16 @@ class PromostionView(View):
 
 		
 """ Add New Playlist """
-class ReportUserView(View):
+class ReportUserView(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'report-user.html'
 
 	def get(self,request):
 		return render(request,self.template_name,locals())
 
 """ Add New Playlist """
-class ReportView(View):
+class ReportView(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'report.html'
 
 	def get(self,request):
@@ -353,7 +397,8 @@ class ReportView(View):
 
 
 """ Add New Playlist """
-class SubscriptionView(View):
+class SubscriptionView(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'subscrption-offers.html'
 
 	def get(self,request):
@@ -361,7 +406,8 @@ class SubscriptionView(View):
 
 
 """ Add New Playlist """
-class AddGenre(View):
+class AddGenre(LoginRequiredMixin,View):
+	login_url = 'web_login'
 	template_name = 'genre-add.html'
 
 	def get(self,request):
