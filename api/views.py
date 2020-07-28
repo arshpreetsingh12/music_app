@@ -108,19 +108,19 @@ class RegisterAPIView(APIView):
 				if is_listener == '1' or is_listener == True:
 					normal = True
 
-					if artist_id:
-						artists = artist_id.split(',')
-						if len(artists) < 3:
-							user.delete()
-							context['success'] = False
-							context['message'] = 'Please choose minimum 3 artist.'
-							return Response(context)
+					# if artist_id:
+					# 	artists = artist_id.split(',')
+					# 	if len(artists) < 3:
+					# 		user.delete()
+					# 		context['success'] = False
+					# 		context['message'] = 'Please choose minimum 3 artist.'
+					# 		return Response(context)
 					
-					else:
-						user.delete()
-						context['success'] = False
-						context['message'] = 'Please choose artist.'
-						return Response(context)
+					# else:
+					# 	user.delete()
+					# 	context['success'] = False
+					# 	context['message'] = 'Please choose artist.'
+					# 	return Response(context)
 
 				else:
 					normal = False
@@ -168,13 +168,13 @@ class RegisterAPIView(APIView):
 						)
 					artist_info.save()
 
-				if artists and user_detail.is_listener:
-					for art in artists:
-						LikeArtist.objects.create(
-							user = user,
-							artist_id = art,
-							like = True		
-							)
+				# if artists and user_detail.is_listener:
+				# 	for art in artists:
+				# 		LikeArtist.objects.create(
+				# 			user = user,
+				# 			artist_id = art,
+				# 			like = True		
+				# 			)
 				context['success'] = True
 				context['message'] = 'You signed up successfully.'
 
@@ -259,6 +259,17 @@ class LoginAPIView(ObtainAuthToken):
 						'is_artist':user_obj.is_artist
 					}
 					context['user'] = user_data
+
+				if user_obj.is_listener:
+					user_data = {
+						'username': user.username,
+						'full_name': user.first_name,
+						'email': user.email,
+						'is_listener':user_obj.is_listener
+					}
+					context['user'] = user_data
+					
+				
 				context['message'] = 'Successfully login.'
 				context['data'] = {'token': token.key}
 				login(request, user)
@@ -955,10 +966,10 @@ class ChangePasswordApi(APIView):
 	Send forget password link.
 				    			"""
 class ForgetPasswordLinkAPIView(APIView):
-
-	def post(self, request):
+	permission_classes = [AllowAny]
+	def get(self, request):
 		context = {}
-		email = request.data.get('email')
+		email = request.GET.get('email')
 		if not email:
 			context['status'] = False
 			context['message'] = "Please enter email"
