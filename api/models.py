@@ -13,6 +13,7 @@ class UserDetail(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	date_of_birth = models.DateField()
 	gender = models.CharField(max_length=50, choices=GENDER_CHOICES)
+	profile_pic = models.ImageField(upload_to = 'user_image', default='noimage.jpg')
 	is_artist = models.BooleanField(default=False)
 	is_listener = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True)

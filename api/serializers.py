@@ -50,7 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserDetail
-		fields = ['user','date_of_birth','gender','is_artist','is_listener']
+		fields = ['user','is_artist','is_listener','profile_pic']
 
 class ArtistInfoSerializer(serializers.ModelSerializer):
 	class Meta:

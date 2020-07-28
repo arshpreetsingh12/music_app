@@ -50,6 +50,7 @@ urlpatterns = [
     path('country-list', CountryList.as_view()),
     path('genre-list', GenreList.as_view()),
     path('artist-list', AllArtist.as_view()),
+    path('artist-detail/<int:pk>', ArtistDetail.as_view()),
 
     ## password update apis ###
     path('change-password', ChangePasswordApi.as_view()),
