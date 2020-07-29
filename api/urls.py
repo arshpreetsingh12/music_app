@@ -25,6 +25,7 @@ urlpatterns = [
     path('logout', LogoutAPIView.as_view()),
     path('edit-profile', EditUserAPIView.as_view()),
     path('my-profile', UserInformation.as_view()),
+    path('token-validate', ValidateToken.as_view()),
 
 
 
@@ -41,6 +42,7 @@ urlpatterns = [
     path('artist-list', AllArtist.as_view()),
     path('artist-detail/<int:pk>', ArtistDetail.as_view()),
     path('like-artist', LikeArtistAPIView.as_view()),
+    path('dislike-artist', DislikeArtist.as_view()),
 
     
     path('song-view', SongsAPIView.as_view()),

@@ -321,21 +321,53 @@ class EditUserAPIView(APIView):
 
 		date_of_birth = request.data.get('date_of_birth')
 		gender = request.data.get('gender')
-		
-		try:
+		profile_pic = request.data.get('profile_pic')
+		website =  request.data.get('website')
+		company_label = request.data.get('company_label')
+		social_media = request.data.get('social_media')
+		country = request.data.get('country')
+		genre = request.data.get('genre')
 
+		try:
 			user = UserDetail.objects.get(user_id=request.user.id)
 			if date_of_birth:
 				user.date_of_birth = date_of_birth
-				user.save()
 			if gender:
 				user.gender = gender
-				user.save()	
+			if profile_pic:
+				user.profile_pic = profile_pic
+			user.save()
+
+			if user.is_artist:
+				updateart = ArtistInfo.objects.get(info = user) 
+				if website:
+					updateart.website = website
+				if company_label:
+					updateart.company_label = company_label
+				if social_media:
+					updateart.social_media = social_media
+				if country:
+					try:
+						country_obj = Country.objects.get(pk = country)
+						updateart.country = country_obj
+					except Country.DoesNotExist:
+						context['success'] = False
+						context['message'] = 'Invalid country id.'
+						return Response(context)
+
+				if genre:
+					try:
+						genre_obj = Genre.objects.get(pk = genre)
+						updateart.genre = genre_obj
+					except Genre.DoesNotExist:
+						context['success'] = False
+						context['message'] = 'Invalid genre id.'
+						return Response(context) 
+				updateart.save() 
 
 			serializer = UserSerializer(request.user, data=request.data, partial=True)
 			if serializer.is_valid():
 				serializer.save()
-				print(serializer)	
 				context['success'] = True	
 				context['message'] = 'Profile successfully updated.' 
 			else:
@@ -523,7 +555,7 @@ class AllArtist(APIView):
 			context['data'] = serializer.data		
 		except Exception as e:
 			context['success'] = False
-			context['message'] = 'Something went wrong '+str(e)	
+			context['message'] = 'Something went wrong '
 		return Response(context)
 
 
@@ -658,6 +690,32 @@ class LikeArtistAPIView(APIView):
 			context['message'] = 'Artist id is required filed.'
 		return Response(context)
 
+
+class DislikeArtist(APIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		context = {}
+		artist_id = request.data.get('artist_id')
+		user_id = request.user.id
+		
+		try:
+			if artist_id:
+				artists = artist_id.split(',')
+				for art in artists:
+					qs = LikeArtist.objects.get(artist_id = art, user_id = user_id, like = True)
+					qs.like = False
+					qs.save()
+					context['success'] = True
+					context['data'] = "Successfully dislike artist."	
+			else:
+				context['success'] = False
+				context['data'] = "Please select any artist."
+		except Exception as e:
+			context['success'] = False
+			context['message'] = 'Artist not found.'	
+		return Response(context)
 
 """
 	This view for liked artist's songs.
@@ -1412,3 +1470,56 @@ class MyFollowingList(APIView):
 			dictV['success'] = False
 			dictV['message'] = "Something went wrong, Please try again"	
 		return Response(dictV)
+
+
+class ValidateToken(APIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
+	def get(self, request):
+		context = {}
+		try:
+			token = request.META.get('HTTP_AUTHORIZATION')
+			token = token.split()
+			if len(token) == 1 or len(token) > 2:
+				context['status'] = False
+				context['message'] = 'Invalid secrer key header. No credentials provided.'
+		
+			else:
+				token = Token.objects.get(key=token[1])
+				context['status'] = True
+			
+				if token.user.is_superuser or token.user.is_staff:
+					context['is_superuser'] = True
+
+				user_obj = UserDetail.objects.get(user = token.user)
+
+				if user_obj.is_listener and not user_obj.is_artist:
+					artist_users = UserDetail.objects.filter(is_artist = True)
+				
+				if user_obj.is_artist or user_obj.is_listener:
+					user_data = {
+						'username': token.user.username,
+						'full_name': token.user.first_name,
+						'email': token.user.email,
+						'is_artist':user_obj.is_artist,
+						'is_listener':user_obj.is_listener,
+						'profile_pic':user_obj.profile_pic.url
+
+					}
+					context['user'] = user_data	
+				if user_obj.is_artist:
+					social_media = {
+						'website':user_obj.artistinfo.website,
+						'company_label':user_obj.artistinfo.company_label,
+						'social_media':user_obj.artistinfo.social_media,
+					}
+					context['social_media'] = social_media
+					
+		except Token.DoesNotExist:
+			context['status'] = False
+			context['error'] = 'Invalid token provided.'
+
+		except Exception as e:
+			context['status'] = False
+			context['error'] = 'Something went wrong, Please try again.'
+		return Response(context)
