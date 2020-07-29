@@ -513,17 +513,17 @@ class AllArtist(APIView):
 	def get(self, request):
 		context = {}
 		try:
-			qs = UserDetail.objects.filter(is_artist = True)
+			qs = ArtistInfo.objects.all()
 			if not qs:
 				context['success'] = True
 				context['message'] = "Artist not found."		
 				return Response(context)
-			serializer = UserDetailSerializer(qs, many=True)
+			serializer = AllArtistDataSerializer(qs, many=True)
 			context['success'] = True
 			context['data'] = serializer.data		
 		except Exception as e:
 			context['success'] = False
-			context['message'] = 'Something went wrong'		
+			context['message'] = 'Something went wrong '+str(e)	
 		return Response(context)
 
 
@@ -536,8 +536,10 @@ class ArtistDetail(APIView):
 	def get(self, request, pk):
 		context = {}
 		try:
-			qs = UserDetail.objects.get(pk = pk, is_artist = True)
-			serializer = UserDetailSerializer(qs)
+			qs = ArtistInfo.objects.get(pk = pk)
+			# qs = UserDetail.objects.get(pk = pk, is_artist = True)
+			# serializer = UserDetailSerializer(qs)
+			serializer = AllArtistDataSerializer(qs)
 			context['status'] = True
 			context['data'] = serializer.data
 
@@ -547,7 +549,7 @@ class ArtistDetail(APIView):
 
 		except Exception as e:
 			context['status'] = False
-			context['message'] = 'Something went wrong'		
+			context['message'] = 'Something went wrong '+str(e)
 		return Response(context)
 
 

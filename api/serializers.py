@@ -57,6 +57,20 @@ class ArtistInfoSerializer(serializers.ModelSerializer):
 		model = ArtistInfo
 		fields = ['info','genre','country','website','company_label','social_media']
 
+class AllArtistDataSerializer(serializers.ModelSerializer):
+	name = serializers.SerializerMethodField()
+	image = serializers.SerializerMethodField()
+
+	class Meta:
+		model = ArtistInfo
+		fields = ['id', 'name', 'image']
+
+	def get_name(self, instance):
+		return instance.info.user.first_name
+
+	def get_image(self, instance):
+		return instance.info.profile_pic.url
+
 # class ArtistSerializer(serializers.ModelSerializer):
 # 	class Meta:
 # 		model = Artist
