@@ -124,7 +124,7 @@ class FollowUserSerializser(serializers.ModelSerializer):
 	
 	class Meta:
 		model = Follwer
-		fields = '__all__'		
+		fields = ['follower_user','following_user','is_follwed']		
 
 class CountrySerializser(serializers.ModelSerializer):
 	

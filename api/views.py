@@ -209,15 +209,26 @@ class CountryList(APIView):
 class GenreList(APIView):
 	def get(self, request):
 		context = {}
+		genre_name = request.GET.get('genre_name')
 		try:
-			qs = Genre.objects.all()
-			if qs:
-				serializer = GenreSerializer(qs, many=True)
-				context['success'] = True
-				context['data'] = serializer.data
+			if not genre_name:
+				qs = Genre.objects.all()
+				if qs:
+					serializer = GenreSerializer(qs, many=True)
+					context['success'] = True
+					context['data'] = serializer.data
+				else:
+					context['success'] = True
+					context['message'] = "No Genre found."
 			else:
-				context['success'] = True
-				context['message'] = "No Genre found."
+				qs = Genre.objects.filter(genre__icontains = genre_name)
+				if qs:
+					serializer = GenreSerializer(qs, many=True)
+					context['success'] = True
+					context['data'] = serializer.data
+				else:
+					context['success'] = True
+					context['message'] = "No Genre found."
 		except Exception as e:
 			context['success'] = False
 			context['message'] = "Something went wrong, Please try again"	
@@ -262,7 +273,19 @@ class LoginAPIView(ObtainAuthToken):
 						'profile_pic':user_obj.profile_pic.url
 
 					}
-					context['user'] = user_data	
+					context['user'] = user_data
+
+				if user_obj.is_listener:
+					playlists = Playlist.objects.filter(user = user).count()
+					followers = Follwer.objects.filter(following_user = user).count()
+					following = Follwer.objects.filter(follower_user = user).count()
+					other_data = {
+						'playlists':playlists,
+						'followers':followers,
+						'following':following,
+					}
+					context['other_data'] = other_data
+
 				if user_obj.is_artist:
 					social_media = {
 						'website':user_obj.artistinfo.website,
@@ -280,6 +303,7 @@ class LoginAPIView(ObtainAuthToken):
 		
 		except Exception as e:
 			context['status'] = False
+			print(e,'=====================e')
 			context['message'] = 'Something went wrong, Please try again.'
 		return Response(context)
 
@@ -543,18 +567,32 @@ class AllArtist(APIView):
 
 	def get(self, request):
 		context = {}
+		artist_name = request.GET.get('artist_name')
 		try:
-			qs = ArtistInfo.objects.all()
-			if not qs:
+			if not artist_name:
+				qs = ArtistInfo.objects.all()
+				if not qs:
+					context['success'] = True
+					context['message'] = "Artist not found."		
+					return Response(context)
+				serializer = AllArtistDataSerializer(qs, many=True)
 				context['success'] = True
-				context['message'] = "Artist not found."		
-				return Response(context)
-			serializer = AllArtistDataSerializer(qs, many=True)
-			context['success'] = True
-			context['data'] = serializer.data		
+				context['data'] = serializer.data	
+
+			else:
+				artist_info = ArtistInfo.objects.filter(info__user__first_name__icontains = artist_name, info__is_artist = True)
+				if artist_info:
+					serializer = AllArtistDataSerializer(artist_info, many = True)
+					context['status'] = True
+					context['data'] = serializer.data
+				else:
+					context['status'] = True
+					context['message'] = "No artist found."
+
 		except Exception as e:
 			context['success'] = False
 			context['message'] = 'Something went wrong '
+
 		return Response(context)
 
 
@@ -1536,3 +1574,5 @@ class ValidateToken(APIView):
 			context['status'] = False
 			context['error'] = 'Something went wrong, Please try again.'
 		return Response(context)
+
+
