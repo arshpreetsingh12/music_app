@@ -612,39 +612,48 @@ class LikeArtistAPIView(APIView):
 	def put(self, request):
 		context = {}
 		artist_id= request.data.get('artist_id')
-		artists = artist_id.split(',')
+	
 		if artist_id:
+			artists = artist_id.split(',')
 			check_liked_artist = LikeArtist.objects.filter(user_id = request.user.id, like = True).count()
 			if check_liked_artist == 0:
 
 				if len(artists) >= 3:
 					for art in artists:
 						try:
-							check_artist_exist = UserDetail.objects.get(id = art, is_artist = True)
-							liked_artist = LikeArtist.objects.filter(user_id = request.user.id,artist_id = art, like = True).last()
-							data = {
-								'user': request.user.id,
-								'artist': art,
-								'like': True
-							}
+							check_ar = User.objects.get(pk = art)
+							check_artist_exist = UserDetail.objects.get(user = check_ar, is_artist = True)
+							liked_artist,created = LikeArtist.objects.get_or_create(user_id = request.user.id,artist = check_ar, like = True)
+							context['success'] = True
+							context['message'] = 'Artist successfully liked.'
+							# liked_artist = LikeArtist.objects.filter(user_id = request.user.id,artist_id = art, like = True).last()
+							
+							# data = {
+							# 	'user': request.user.id,
+							# 	'artist': art,
+							# 	'like': True
+							# }
 
-							try:
-								serializer = LikeArtistSerializer(data=data)
-								if serializer.is_valid():
-									serializer.save()
-									context['success'] = True
-									context['message'] = 'Artist successfully liked.'
-								else:
-									context['success'] = False
-									context['error'] = serializer.errors
-							except Exception as e:
-								context['success'] = False
-								context['message'] = 'Something went wrong, Please try again.'
-							# else:
+							# try:
+							# 	serializer = LikeArtistSerializer(data=data)
+							# 	if serializer.is_valid():
+							# 		serializer.save()
+							# 		context['success'] = True
+							# 		context['message'] = 'Artist successfully liked.'
+							# 	else:
+							# 		context['success'] = False
+							# 		context['error'] = serializer.errors
+							# except Exception as e:
 							# 	context['success'] = False
-							# 	context['message'] = 'Artist already liked.'
+							# 	context['message'] = 'Something went wrong, Please try again.'
+							# # else:
+							# # 	context['success'] = False
+							# # 	context['message'] = 'Artist already liked.'
 
 						except UserDetail.DoesNotExist:
+							context['success'] = False
+							context['message'] = 'Invalid artist id.'
+						except User.DoesNotExist:
 							context['success'] = False
 							context['message'] = 'Invalid artist id.'
 				else:
@@ -654,31 +663,38 @@ class LikeArtistAPIView(APIView):
 			else:
 				for art in artists:
 					try:
-						check_artist_exist = UserDetail.objects.get(id = art, is_artist = True)
-						liked_artist = LikeArtist.objects.filter(user_id = request.user.id,artist_id = art, like = True).last()
-						data = {
-							'user': request.user.id,
-							'artist': art,
-							'like': True
-						}
+						check_ar = User.objects.get(pk = art)
+						check_artist_exist = UserDetail.objects.get(user = check_ar, is_artist = True)
+						liked_artist,created = LikeArtist.objects.get_or_create(user_id = request.user.id,artist = check_ar, like = True)
+						context['success'] = True
+						context['message'] = 'Artist successfully liked.'
+						
+						# data = {
+						# 	'user': request.user.id,
+						# 	'artist': art,
+						# 	'like': True
+						# }
 
-						try:
-							serializer = LikeArtistSerializer(data=data)
-							if serializer.is_valid():
-								serializer.save()
-								context['success'] = True
-								context['message'] = 'Artist successfully liked.'
-							else:
-								context['success'] = False
-								context['error'] = serializer.errors
-						except Exception as e:
-							context['success'] = False
-							context['message'] = 'Something went wrong, Please try again.'
+						# try:
+						# 	serializer = LikeArtistSerializer(data=data)
+						# 	if serializer.is_valid():
+						# 		serializer.save()
+						# 		context['success'] = True
+						# 		context['message'] = 'Artist successfully liked.'
+						# 	else:
+						# 		context['success'] = False
+						# 		context['error'] = serializer.errors
+						# except Exception as e:
+						# 	context['success'] = False
+						# 	context['message'] = 'Something went wrong, Please try again.'
 
 						# else:
 						# 	context['success'] = False
 						# 	context['message'] = 'Artist already liked.'
 					except UserDetail.DoesNotExist:
+						context['success'] = False
+						context['message'] = 'Invalid artist id.'
+					except User.DoesNotExist:
 						context['success'] = False
 						context['message'] = 'Invalid artist id.'							
 		
