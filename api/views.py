@@ -65,7 +65,6 @@ class RegisterAPIView(APIView):
 					context['message'] = 'Please specify user role'
 					return Response(context)
 
-
 				uploader = False
 				if is_artist == '1' or is_artist == True:
 					uploader = True
@@ -610,7 +609,7 @@ class LikeArtistAPIView(APIView):
 			context['message'] = 'Something went wrong'		
 		return Response(context)	
 
-	def post(self, request):
+	def put(self, request):
 		context = {}
 		artist_id= request.data.get('artist_id')
 		artists = artist_id.split(',')
@@ -623,42 +622,6 @@ class LikeArtistAPIView(APIView):
 						try:
 							check_artist_exist = UserDetail.objects.get(id = art, is_artist = True)
 							liked_artist = LikeArtist.objects.filter(user_id = request.user.id,artist_id = art, like = True).last()
-							if not liked_artist:
-								data = {
-									'user': request.user.id,
-									'artist': art,
-									'like': True
-								}
-
-								try:
-									serializer = LikeArtistSerializer(data=data)
-									if serializer.is_valid():
-										serializer.save()
-										context['success'] = True
-										context['message'] = 'Artist successfully liked.'
-									else:
-										context['success'] = False
-										context['error'] = serializer.errors
-								except Exception as e:
-									context['success'] = False
-									context['message'] = 'Something went wrong, Please try again.'
-							else:
-								context['success'] = False
-								context['message'] = 'Artist already liked.'
-
-						except UserDetail.DoesNotExist:
-							context['success'] = False
-							context['message'] = 'Invalid artist id.'
-				else:
-					context['status'] = False
-					context['message'] = 'Please choose minimum 3 artist.'
-
-			else:
-				for art in artists:
-					try:
-						check_artist_exist = UserDetail.objects.get(id = art, is_artist = True)
-						liked_artist = LikeArtist.objects.filter(user_id = request.user.id,artist_id = art, like = True).last()
-						if not liked_artist:
 							data = {
 								'user': request.user.id,
 								'artist': art,
@@ -677,10 +640,44 @@ class LikeArtistAPIView(APIView):
 							except Exception as e:
 								context['success'] = False
 								context['message'] = 'Something went wrong, Please try again.'
+							# else:
+							# 	context['success'] = False
+							# 	context['message'] = 'Artist already liked.'
 
-						else:
+						except UserDetail.DoesNotExist:
 							context['success'] = False
-							context['message'] = 'Artist already liked.'
+							context['message'] = 'Invalid artist id.'
+				else:
+					context['status'] = False
+					context['message'] = 'Please choose minimum 3 artist.'
+
+			else:
+				for art in artists:
+					try:
+						check_artist_exist = UserDetail.objects.get(id = art, is_artist = True)
+						liked_artist = LikeArtist.objects.filter(user_id = request.user.id,artist_id = art, like = True).last()
+						data = {
+							'user': request.user.id,
+							'artist': art,
+							'like': True
+						}
+
+						try:
+							serializer = LikeArtistSerializer(data=data)
+							if serializer.is_valid():
+								serializer.save()
+								context['success'] = True
+								context['message'] = 'Artist successfully liked.'
+							else:
+								context['success'] = False
+								context['error'] = serializer.errors
+						except Exception as e:
+							context['success'] = False
+							context['message'] = 'Something went wrong, Please try again.'
+
+						# else:
+						# 	context['success'] = False
+						# 	context['message'] = 'Artist already liked.'
 					except UserDetail.DoesNotExist:
 						context['success'] = False
 						context['message'] = 'Invalid artist id.'							
