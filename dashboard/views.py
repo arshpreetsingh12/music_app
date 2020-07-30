@@ -11,6 +11,7 @@ from django.urls import reverse
 from datetime import datetime,date,timedelta
 from .models import *
 from django.contrib.auth.mixins import LoginRequiredMixin
+import json
 
 class HomePage(LoginRequiredMixin,View):
 	login_url = 'web_login'
@@ -48,11 +49,11 @@ class LoginView(View):
 						user_info = UserDetail.objects.filter(user = user).last()
 						if user_info:
 							if user_info.is_artist:
-								return HttpResponseRedirect(reverse('info'))
+								return HttpResponseRedirect(reverse('my_profile'))
 							else:
 								return HttpResponseRedirect(reverse('artist_users'))
 						if user.is_staff or user.is_superuser:
-							return HttpResponseRedirect(reverse('admin_users'))
+							return HttpResponseRedirect(reverse('dashboard_home'))
 							
 					else:
 						messages.error(request,'Invalid credentials.')
@@ -76,13 +77,28 @@ class Logout(View):
 		logout(request)
 		return HttpResponseRedirect(reverse('web_login'))
 
-class UserInfo(LoginRequiredMixin,View):
+class MyProfile(LoginRequiredMixin,View):
 	login_url = 'web_login'
-	template_name = 'artist_info.html'
+	template_name = 'my-profile.html'
 
 	def get(self,request):
+		user = User.objects.get(id = request.user.id)
 		user_info = UserDetail.objects.filter(user = request.user).last()
 		return render(request,self.template_name,locals())
+
+	def post(self,request):
+		response = {}
+		username = request.POST.get('username')
+		email = request.POST.get('email')
+		if username and email:
+			user = User.objects.get(pk = request.user.id)
+			user.username = username 
+			user.email = email
+			user.save()
+			response['status'] = True
+		else:
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
 
 
 """ 
@@ -146,6 +162,8 @@ class AllSongs(LoginRequiredMixin,View):
 				user = UserDetail.objects.get(user_id = request.user.id)
 				if user.is_artist:
 					all_song = Song.objects.filter(user = user)
+				else:
+					all_song = Song.objects.all()
 		except Exception as e:
 			pass
 		
@@ -259,6 +277,8 @@ class AllAlbums(LoginRequiredMixin,View):
 				user = UserDetail.objects.get(user_id = request.user.id)
 				if user.is_artist:
 					all_albums = Album.objects.filter(artist = user)
+				else:
+					all_albums = Album.objects.all()
 		except Exception as e:
 			pass
 		return render(request,self.template_name,locals())	
@@ -271,7 +291,11 @@ class AddAlbum(LoginRequiredMixin,View):
 
 	def get(self,request):
 		all_artist = UserDetail.objects.filter(is_artist = True)
-		songs = Song.objects.all()
+		if request.user.is_superuser or request.user.is_staff:
+			songs = Song.objects.all()
+		else:
+			current_user = UserDetail.objects.get(user_id = request.user.id)
+			songs = Song.objects.filter(user = current_user)
 		return render(request,self.template_name,locals())
 
 	def post(self, request):
@@ -317,6 +341,76 @@ class AddAlbum(LoginRequiredMixin,View):
 		return HttpResponseRedirect(reverse('add_album'))
 
 
+class ViewAlbum(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'view-album.html'
+
+	def get(self,request,album_id):
+		album = Album.objects.filter(pk = album_id).last()
+		all_artist = UserDetail.objects.filter(is_artist = True)
+		songs = Song.objects.all()
+		return render(request,self.template_name,locals())
+
+""" Edit Album """
+class EditAlbum(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'edit-album.html'
+
+	def get(self,request,album_id):
+		try:
+			album = Album.objects.get(pk = album_id)
+			all_artist = UserDetail.objects.filter(is_artist = True)
+			if request.user.is_superuser or request.user.is_staff:
+				songs = Song.objects.all()
+			else:
+				current_user = UserDetail.objects.get(user_id = request.user.id)
+				songs = Song.objects.filter(user = current_user)
+		except Exception as e:
+			pass		
+		return render(request,self.template_name,locals())
+
+	def post(self, request):
+		artist = request.POST.get('artist')
+		twitter_url = request.POST.get('twitter_url')
+		album_length = request.POST.get('album_length')
+		google_url = request.POST.get('google_url')
+		website_url = request.POST.get('website_url')
+		description = request.POST.get('description')
+		fb_url = request.POST.get('fb_url')
+		album_title = request.POST.get('album_title')
+		album_pic = request.FILES.get('album_pic')
+		selected_song = request.POST.getlist('selected_song')
+
+		try:
+			add_album = Album.objects.create(
+				artist_id = artist,
+				album = album_title,
+				)
+			add_album.song.set(selected_song)
+			if album_pic:
+				add_album.album_pic = album_pic
+			
+			if fb_url:
+				add_album.fb_url = fb_url
+			if twitter_url:
+				add_album.twitter_url = twitter_url
+			if google_url:
+				add_album.google_url = google_url
+			if website_url:
+				add_album.website_url = website_url
+			if description:
+				add_album.description = description
+			if album_length:
+				add_album.album_length = album_length
+			
+			add_album.save()
+			messages.success(request, "Album successfully added.")
+
+		except Exception as e:
+			print(e)
+			messages.error(request, "Something went wrong.")
+		return HttpResponseRedirect(reverse('add_album'))
+
 
 """ Add New Playlist """
 class Financial(LoginRequiredMixin,View):
@@ -334,6 +428,7 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 
 	def get(self,request):
 		artist_user = UserDetail.objects.filter(is_artist = True)
+		songs = Song.objects.all()
 		return render(request,self.template_name,locals())
 
 	def post(self,request):
@@ -341,6 +436,7 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 		artist = request.POST.get('artist')
 		cover_img = request.FILES.get('cover_img')
 		discription = request.POST.get('discription')
+		selected_song = request.POST.getlist('selected_song')
 
 		try:
 			artist_info = ArtistInfo.objects.get(info_id = artist)
@@ -353,6 +449,12 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 			if cover_img:
 				add_play_list.cover_image = cover_img
 			add_play_list.save()
+			for song in selected_song:
+				PlaylistTrack.objects.create(
+					user = request.user,
+					playlist = add_play_list,
+					song_id = song
+					)
 			messages.info(request, "Playlist successfully added.")
 
 		except Exception as e:

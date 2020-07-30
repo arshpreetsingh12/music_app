@@ -80,13 +80,12 @@
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
-                        <label for="exampleInputPassword1">Select Playlist Songs</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
-                          <option></option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
+                         <label for="exampleInputPassword1">Select Album Songs</label>
+                        <select class="form-control select-song selectpicker2" id="exampleFormControlSelect1" name="selected_song" multiple>
+                          <!-- <option selected="" disabled>Select song</option> -->
+                          {% for song in songs %}
+                          <option value="{{song.id}}">{{song.song_title}}</option>
+                          {% endfor %}
                         </select>
                       </div>
                     </div>
@@ -141,6 +140,7 @@ $('.add-playlist').click(function(){
   var title = ($("input[name='title']").val()).trim();
   var artist = $(".choose-artist").val();
   var discription = ($("textarea[name='discription']").val()).trim();
+  var select_song = $(".selectpicker2").val();
   var submit = true;
 
     if (title==''|| title == null){
@@ -162,6 +162,15 @@ $('.add-playlist').click(function(){
         submit = true;
    
      }
+    if (select_song == ''|| select_song == null){
+        $('.select-song').css('border', '1px solid red');
+          submit = false;
+    }
+
+    else{
+      $('.select-song').css('border', '1px solid #ced4da');
+   
+     }
 
 
     if (discription==''|| discription == null){
@@ -175,6 +184,10 @@ $('.add-playlist').click(function(){
 
     return submit;
 });
+ $(function () {
+    $('.selectpicker2').selectpicker();
+});
+
 </script>
 
   {% endblock %}

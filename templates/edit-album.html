@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <!-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+          </div> -->
+
+          <!-- Content Row -->
+
+          <div class="row">
+
+            <!-- Area Chart -->
+            <div class="col-12">
+              <div class="card mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="p-3 d-flex justify-content-between">
+                  <div class="">
+                    <h6>Add Album</h6>
+                  </div>
+                 
+                </div>
+
+                <!-- form -->
+                <form action="{% url 'edit_album' album.id %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                <div class="pt-3 mb-3  ">
+                  <div class="row px-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Album Title</label>
+                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="" name="album_title" value="{{album.album}}">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">FB URL</label>
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="fb_url" {% if album.fb_url %} value="{{album.fb_url}}" {% endif %}>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Artist</label>
+                        <!-- <input type="password" class="form-control" id="exampleInputPassword1" placeholder=""> -->
+                        <select class="form-control artist" id="exampleFormControlSelect1" name="artist">
+                          <option selected disabled>Select Artist</option>
+                        {% for artist in all_artist %}
+                            <option value="{{artist.id}}" {% if artist.id == album.artist.id %} selected {% endif %}>{{artist.user.first_name}}</option>
+                           
+                        {% endfor %}
+                      </select>
+                      </div>
+                    </div>
+                    <!--  <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Album Pic</label>
+                        <input type="file" class="form-control" id="exampleInputPassword1" placeholder="" name="album_pic">
+                      </div>
+                    </div> -->
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">TWITTER URL</label>
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="twitter_url" {% if album.twitter_url %} value="{{album.twitter_url}}" {% endif %}>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Album Length eg: “04:20”</label>
+                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="" name="album_length" {% if album.album_length %} value="{{album.album_length}}" {% endif %}>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">GOOGLE PLUS URL</label>
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="google_url" {% if album.google_url %} value="{{album.google_url}}" {% endif %}>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Select Album Songs</label>
+                        <select class="form-control select-song selectpicker2" id="exampleFormControlSelect1" name="selected_song" multiple>
+                          <!-- <option selected="" disabled>Select song</option> -->
+                          {% for song in songs %}
+                          <option value="{{song.id}}">{{song.song_title}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Website URL</label>
+                        <input type="url" class="form-control" id="exampleInputPassword1" placeholder="" name="website_url" {% if album.website_url %} value="{{album.website_url}}" {% endif %}>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Brief Description</label>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="description">{% if album.description %} {{album.description}}{% endif %}</textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="px-3 text-right py-5">
+                      <button class="btn primary-btn mr-2 cancel-btn" type="button">cancel</button>
+                      <button class="btn secondary-btn add-album" type="submit">save</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            </form>
+          </div>
+
+          <!-- Content Row -->
+          
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+{% endblock %}
+
+
+
+{% block extrascript %}
+<script type="text/javascript">
+
+ $('.cancel-btn').on('click', function() {
+    window.history.back();
+  });
+
+
+$('.add-album').click(function(){
+  var album_title = ($("input[name='album_title']").val()).trim();
+  var select_song = $(".selectpicker2").val();
+  var artist = $(".artist").val();
+  var fb_url = ($("input[name='fb_url']").val()).trim();
+  var twitter_url = ($("input[name='twitter_url']").val()).trim();
+  var google_url = ($("input[name='google_url']").val()).trim();
+  var website_url = ($("input[name='website_url']").val()).trim();
+  var submit = true;
+
+    url_validate = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+
+    if (album_title==''|| album_title == null){
+        $("input[name='album_title']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='album_title']").css('border', '1px solid #ced4da');
+    }
+
+    if (artist == ''|| artist == null){
+        $('.artist').css('border', '1px solid red');
+          submit = false;
+    }
+
+    else{
+      $('.artist').css('border', '1px solid #ced4da');
+   
+     }
+
+    if (select_song == ''|| select_song == null){
+        $('.select-song').css('border', '1px solid red');
+          submit = false;
+    }
+
+    else{
+      $('.select-song').css('border', '1px solid #ced4da');
+   
+     }
+     if (fb_url ==''|| fb_url == null){
+        $("input[name='fb_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(fb_url)){
+          $("input[name='fb_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='fb_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+
+    if (twitter_url ==''|| twitter_url == null){
+        $("input[name='twitter_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(twitter_url)){
+          $("input[name='twitter_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='twitter_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+
+    if (google_url ==''|| google_url == null){
+        $("input[name='google_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(google_url)){
+          $("input[name='google_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='google_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+
+     if (website_url ==''|| website_url == null){
+        $("input[name='website_url']").css('border', '1px solid #ced4da');       
+    }
+    else{
+      if (url_validate.test(website_url)){
+          $("input[name='website_url']").css('border', '1px solid #ced4da');
+        }
+        else{
+          $("input[name='website_url']").css('border', '1px solid red');
+            submit = false;
+        }
+    }
+    return submit;
+});
+  $(function () {
+    $('.selectpicker2').selectpicker();
+});
+</script>
+
+  {% endblock %}

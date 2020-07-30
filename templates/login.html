@@ -1,6 +1,65 @@
-<form action = "{% url 'web_login' %}" method = "post" >
-	{% csrf_token %}
-<input type = "text" name = "email" placeholder="Email" required> <br>
-<input type = "password" name = "password" placeholder="Password" required> <br>
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Admin Login</title>
+	  <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<section class="admin_music">
+	<div class="container-fluid">
+		<div class="admin_sec">
+			{% if messages %}
+			  {% for message in messages %}
+			  <div class="alert text-center {% if message.tags == 'error' %}alert-danger{% else %} alert-{{ message.tags }}{% endif %}" role="alert">{{ message|safe }}
+			<!--   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			      <span aria-hidden="true">&times;</span>
+			  </button>
+			 -->  </div>
 
-<button type="submit">Submit</button>
+			 {% endfor %}
+    
+ 			 {% endif %}
+			  <link rel="shortcut icon" href="{% static 'images/Logo1.png' %}">
+			<h3>Admin Login</h3>
+			<form action = "{% url 'web_login' %}" method = "post" >
+        {% csrf_token %}
+				<input type="email" name = "email" class="mt-3" placeholder="Enter Email/Username" required>
+				<input type="password" name="password" placeholder="Enter Password" required>
+				<button type="submit" class="btn admin_login_btn">Login</button>
+			</form>
+		</div>
+	</div>
+</section>
+<script type="text/javascript">
+	
+$('.admin_login_btn').click(function(){
+  var email = ($("input[name='email']").val()).trim();
+  var password = ($("input[name='password']").val()).trim();
+  var submit = true;
+
+    if (email==''|| email == null){
+        $("input[name='email']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='album_title']").css('border', '1px solid #ced4da');
+    }
+    if (password==''|| password == null){
+        $("input[name='password']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='password']").css('border', '1px solid #ced4da');
+    }
+    return submit;
+})
+</script>
+</body>
+</html>

@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
-
+  {% block css %}
+<style type="text/css">
+  .edit-pro{
+    display: none;
+  }
+</style>
+   {% endblock %}
 {% block content %}
 
         <!-- Begin Page Content -->
@@ -19,25 +25,32 @@
               <div class="card p-3">
                 <div class="row">
                   <div class="col-md-6">
+                     <div class="alert text-center alert-danger" style="display: none;" role="alert">{{ message|safe }}
+                     </div>
+
                     <h6>User Information</h6>
                     <table class="another-tbl table table-borderless mt-4">
                     
                       <tbody>
                         <tr>
                           <th scope="row">Username</th>
-                          <td>{{user_info.user.username}}</td>
+                          <td class="exist_pro">{{user.username}}</td>
+                          <td class="edit-pro"> <input type="text" class="form-control"  name="username" id="exampleInputPassword1" placeholder="" value="{{user.username}}"></td>
                         </tr>
                         <tr>
                           <th scope="row">Email</th>
-                          <td>{{user_info.user.email}}</td>
+                          <td class="exist_pro">{% if user.email %}{{user.email}} {% endif %}</td>
+                          <td class="edit-pro"> <input type="email" class="form-control "  name="email" id="exampleInputPassword1" placeholder="" value="{{user.email}}"></td>
                         </tr>
+                        {% if user_info.is_artist or user_info.is_listener %}
                         <tr>
                           <th scope="row">Date of Birth</th>
-                          <td>{{user_info.date_of_birth|date:"Y-m-d"}}</td>
+                          <td>{% if user_info.date_of_birth %}{{user_info.date_of_birth|date:"Y-m-d"}} {% else %} Not provided {% endif %}</td>
                         </tr>
+                        {% endif %}
                         <tr>
                           <th scope="row">Role</th>
-                          <td>Artist</td>
+                          <td>{% if user_info.is_artist %} Artist {% elif user_info.is_listener %} Listener {% else %} Admin {% endif %}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -52,13 +65,18 @@
                     
                   </div>
                 </div>
-                <div class="filter text-right pr-5 mb-3">
-                  <button class="filter-btn">EDIT PROVILE</button>
+
+                <div class="filter text-right pr-5 mb-3 edit-btn-div">
+                  <button type="button" class="filter-btn edit-profile">EDIT PROFILE</button>
                 </div>
+                 <div class="filter text-right pr-5 mb-3 save-btn-div" style="display: none;">
+                  <button type="button" class="filter-btn save-profile">SAVE</button>
+                </div>
+
               </div>
             </div>
 
-            {% comment %}
+    
             <!-- Area Chart -->
             <div class="col-12">
               <div class="card mb-4">
@@ -97,7 +115,7 @@
                           <td>
                             <div class="white-txt">Admin</div>
                           </td>
-                          <td><img class="delete-icn" src="./images/delete.svg"></td>
+                          <td><img class="delete-icn" src="{% static 'images/delete.svg' %}"></td>
                         </tr>
                        <tr>
                           <td>
@@ -106,7 +124,7 @@
                           <td>
                             <div class="white-txt">Admin</div>
                           </td>
-                          <td><img class="delete-icn" src="./images/delete.svg"></td>
+                          <td><img class="delete-icn" src="{% static 'images/delete.svg' %}"></td>
                         </tr>
                         <tr>
                           <td>
@@ -115,7 +133,7 @@
                           <td>
                             <div class="white-txt">Admin</div>
                           </td>
-                          <td><img class="delete-icn" src="./images/delete.svg"></td>
+                          <td><img class="delete-icn" src="{% static 'images/delete.svg' %}"></td>
                         </tr>
                     
                      
@@ -175,5 +193,81 @@
     <!-- End of Content Wrapper -->
 
   </div>
-  {% endcomment %}
+
+ {% endblock %}
+{% block extrascript %}
+
+<script type="text/javascript">
+
+// $('.cancel-btn').on('click', function() {
+//     window.history.back();
+//   });
+
+// $()
+
+$('.edit-profile').click(function(){
+  $('.exist_pro').css('display', 'none');
+  $('.edit-pro').css('display', 'table-cell');
+  $('.save-btn-div').css('display', 'block');
+  $('.edit-btn-div').css('display', 'none');
+  // var username = ($("input[name='username']").val()).trim();
+  // var email = ($("input[name='email']").val()).trim();
+  // if (fisrt_name==''|| fisrt_name == null){
+  //       $("input[name='first_name']").css('border', '1px solid red');
+  //         submit = false;
+  //   }
+  //    else{
+  //     $("input[name='first_name']").css('border', '1px solid #ced4da');
+  //   }
+
+
+  // return submit;
+});
+
+$('.save-profile').click(function(){
+  $('.alert-danger').css('display','none');
+$('.alert-danger').html('');
+  var username = ($("input[name='username']").val()).trim();
+  var email = ($("input[name='email']").val()).trim();
+  var submit = true;
+  if (username==''|| username == null){
+        $("input[name='username']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='username']").css('border', '1px solid #ced4da');
+    }
+
+   if (email==''|| email == null){
+        $("input[name='email']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='email']").css('border', '1px solid #ced4da');
+    }
+
+    if (submit == true){
+      $.ajax({
+            url:"{% url 'my_profile' %}",
+            type:'POST',
+            data:{
+               'csrfmiddlewaretoken':'{{csrf_token}}',
+                'username':username,
+                'email':email
+               
+            },
+            success: function(response) {
+                if (response.status == true){
+                  window.location.reload();
+                }
+                else{
+                  $('.alert-danger').css('display','block');
+                   $('.alert-danger').append('Both field are required.');
+                }
+            }
+    })
+    }
+});
+
+</script>
  {% endblock %}

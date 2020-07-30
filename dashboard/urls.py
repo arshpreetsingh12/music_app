@@ -19,13 +19,17 @@ urlpatterns = [
 	path('add-genre/', AddGenre.as_view(), name = "add_genre"),
 	path('genre-list/', GeneresList.as_view(), name = "genre_list"),
 	
-	path('info/', UserInfo.as_view(), name = "info"),
+	path('my-profile/', MyProfile.as_view(), name = "my_profile"),
 	
 	path('all-songs/', AllSongs.as_view(), name = "all_songs"),
 	path('add-new-song/', AddNewSongs.as_view(), name = "add_new_song"),
 	
 	path('all-albums/', AllAlbums.as_view(), name = "all_albums"),
 	path('add-album/', AddAlbum.as_view(), name = "add_album"),
+	path('view-album/<int:album_id>/', ViewAlbum.as_view(), name = "view_album"),
+	path('edit-album/<int:album_id>/', EditAlbum.as_view(), name = "edit_album"),
+
+
 	path('financial/', Financial.as_view(), name = "financial"),
 	
 	path('all-playlist/', AllPlayList.as_view(), name = "all_playlist"),
