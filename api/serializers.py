@@ -100,7 +100,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class AlbumSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Album	
-		fields = ['artist','song','album','album_pic','album_length','fb_url','twitter_url','google_url','website_url','description']
+		fields = ['id','artist','song','album','album_pic','album_length','description']
 
 class HideSongSerializer(serializers.ModelSerializer):
 	class Meta:

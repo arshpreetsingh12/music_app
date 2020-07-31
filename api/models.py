@@ -100,7 +100,7 @@ class Album(models.Model):
 """ When user like any artist that object saved in this table """
 class LikeArtist(models.Model):
 	user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
-	artist = models.ForeignKey(User, related_name='artist', null= True, blank = True, on_delete=models.CASCADE)
+	artist = models.ForeignKey(ArtistInfo, related_name='artist', null= True, blank = True, on_delete=models.CASCADE)
 	like = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)

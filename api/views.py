@@ -12,7 +12,7 @@ from django.contrib.auth import login, logout, authenticate
 from rest_framework.authentication import TokenAuthentication
 from .serializers import *
 from rest_framework import generics
-import uuid
+import uuid, re
 
 
 """ 
@@ -219,16 +219,17 @@ class GenreList(APIView):
 					context['data'] = serializer.data
 				else:
 					context['success'] = True
-					context['message'] = "No Genre found."
+					context['message'] = "No Genre found.aaa"
 			else:
-				qs = Genre.objects.filter(genre__icontains = genre_name)
+				searched_genre = re.sub("\s+$","",genre_name)
+				qs = Genre.objects.filter(genre__icontains = searched_genre)
 				if qs:
 					serializer = GenreSerializer(qs, many=True)
 					context['success'] = True
 					context['data'] = serializer.data
 				else:
 					context['success'] = True
-					context['message'] = "No Genre found."
+					context['message'] = "No Genre foundssss."
 		except Exception as e:
 			context['success'] = False
 			context['message'] = "Something went wrong, Please try again"	
@@ -303,7 +304,6 @@ class LoginAPIView(ObtainAuthToken):
 		
 		except Exception as e:
 			context['status'] = False
-			print(e,'=====================e')
 			context['message'] = 'Something went wrong, Please try again.'
 		return Response(context)
 
@@ -580,7 +580,8 @@ class AllArtist(APIView):
 				context['data'] = serializer.data	
 
 			else:
-				artist_info = ArtistInfo.objects.filter(info__user__first_name__icontains = artist_name, info__is_artist = True)
+				searched_artist = re.sub("\s+$","",artist_name.lstrip())
+				artist_info = ArtistInfo.objects.filter(info__user__first_name__icontains = searched_artist, info__is_artist = True)
 				if artist_info:
 					serializer = AllArtistDataSerializer(artist_info, many = True)
 					context['status'] = True
@@ -659,8 +660,7 @@ class LikeArtistAPIView(APIView):
 				if len(artists) >= 3:
 					for art in artists:
 						try:
-							check_ar = User.objects.get(pk = art)
-							check_artist_exist = UserDetail.objects.get(user = check_ar, is_artist = True)
+							check_ar = ArtistInfo.objects.get(pk = art)
 							liked_artist,created = LikeArtist.objects.get_or_create(user_id = request.user.id,artist = check_ar, like = True)
 							context['success'] = True
 							context['message'] = 'Artist successfully liked.'
@@ -688,12 +688,10 @@ class LikeArtistAPIView(APIView):
 							# # 	context['success'] = False
 							# # 	context['message'] = 'Artist already liked.'
 
-						except UserDetail.DoesNotExist:
+						except ArtistInfo.DoesNotExist:
 							context['success'] = False
 							context['message'] = 'Invalid artist id.'
-						except User.DoesNotExist:
-							context['success'] = False
-							context['message'] = 'Invalid artist id.'
+
 				else:
 					context['status'] = False
 					context['message'] = 'Please choose minimum 3 artist.'
@@ -701,8 +699,7 @@ class LikeArtistAPIView(APIView):
 			else:
 				for art in artists:
 					try:
-						check_ar = User.objects.get(pk = art)
-						check_artist_exist = UserDetail.objects.get(user = check_ar, is_artist = True)
+						check_ar = ArtistInfo.objects.get(pk = art)
 						liked_artist,created = LikeArtist.objects.get_or_create(user_id = request.user.id,artist = check_ar, like = True)
 						context['success'] = True
 						context['message'] = 'Artist successfully liked.'
@@ -729,12 +726,9 @@ class LikeArtistAPIView(APIView):
 						# else:
 						# 	context['success'] = False
 						# 	context['message'] = 'Artist already liked.'
-					except UserDetail.DoesNotExist:
+					except ArtistInfo.DoesNotExist:
 						context['success'] = False
-						context['message'] = 'Invalid artist id.'
-					except User.DoesNotExist:
-						context['success'] = False
-						context['message'] = 'Invalid artist id.'							
+						context['message'] = 'Invalid artist id.'						
 		
 		else:
 			context['success'] = False
@@ -940,7 +934,8 @@ class AddAlbumAPIView(APIView):
 			user = UserDetail.objects.get(user_id = request.user.id)
 			if user.is_artist: 
 				if album_id:
-					album_obj = Album.objects.filter(pk = album_id).delete()
+					album_obj = Album.objects.get(pk = album_id,artist = user)
+					album_obj.delete()
 					dictV['status'] = True
 					dictV['data'] = "Album successfully deleted."
 				else:
@@ -949,7 +944,7 @@ class AddAlbumAPIView(APIView):
 			else:
 				context['success'] = False
 				context['error'] = "You don't have permission to add album."
-		except Song.DoesNotExist:
+		except Album.DoesNotExist:
 			dictV['status'] = False
 			dictV['data'] = "Album does not exist."
 
@@ -959,49 +954,37 @@ class AddAlbumAPIView(APIView):
 		return Response(dictV)
 
 
-	# def put(self, request):
-	# 	dictV = {}
-	# 	album_id = request.data.get('album_id')
-	# 	song_id = request.data.get('song_id')
-	# 	try:
-	# 		user = UserDetail.objects.get(user_id = request.user.id)
-	# 		if user.is_artist:
-	# 			if album_id:
-	# 			    obj = Album.objects.get(pk = album_id)
-	# 			    serializer = AlbumSerializer(obj, data=request.data, partial=True)
-	# 			    if serializer.is_valid():
-	# 			    	serializer.save()
-	# 			    	songs = song_id.split(',')
-	# 			    	if songs:
-	# 			    		for song in songs:
-	# 							song_data = {
-	# 								'albums':album_id,
-	# 								'song':song
-	# 							}
-	# 							song_serializer = AlbumSongsSerializser(data=song_data)
-	# 							if song_serializer.is_valid():
-	# 								song_serializer.save()
-	# 								status = True
-	# 								message = 'Album successfully added.'
-	# 							else:
-	# 								status = False
-	# 								message = song_serializer.errors
-	# 			    else:
-	# 			    	status = False
-	# 			    	message = serializer.errors
-	# 			else:
-	# 				status = False
-	# 				message = 'Id is required.'
-	# 		else:
-	# 			status = False
-	# 			message = "You don't have permission to add song."
-	# 	except Song.DoesNotExist:
-	# 	    status = True
-	# 	    message = 'Song does not exist.'
+	def put(self, request):
+		dictV = {}
+		album_id = request.data.get('album_id')
+		song_id = request.data.get('song_id')
+		try:
+			user = UserDetail.objects.get(user_id = request.user.id)
+			if user.is_artist:
+				if album_id:
+				    obj = Album.objects.get(pk = album_id, artist = user)
+				    serializer = AlbumSerializer(obj, data=request.data, partial=True)
+				    if serializer.is_valid():
+				    	serializer.save()
+				    	status = True
+				    	message = 'Album successfully updated.'
+
+				    else:
+				    	status = False
+				    	message = serializer.errors
+				else:
+					status = False
+					message = 'Id is required.'
+			else:
+				status = False
+				message = "You don't have permission to update album."
+		except Album.DoesNotExist:
+		    status = True
+		    message = 'Album does not exist.'
 	
-	# 	dictV['status'] = status
-	# 	dictV['message'] = message
-	# 	return Response(dictV)
+		dictV['status'] = status
+		dictV['message'] = message
+		return Response(dictV)
 
 class AlbumDetail(APIView):
 	authentication_classes = (TokenAuthentication,)
@@ -1010,6 +993,7 @@ class AlbumDetail(APIView):
 	def get(self, request, album_id):
 		context = {}
 		user_id = request.user.id
+		qs = ''
 		try:
 			if not request.user.is_superuser or not request.user.is_staff:
 				user = UserDetail.objects.get(user_id = user_id)
@@ -1021,7 +1005,7 @@ class AlbumDetail(APIView):
 				qs = Album.objects.get(pk = album_id)
 			
 			if not qs:
-				context['status'] = False
+				context['status'] = True
 				context['data'] = "No album found."		
 				return Response(context)
 			album = AlbumSerializer(qs)

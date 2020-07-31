@@ -27,7 +27,7 @@
                   </div>
                   <div class="filter-side">
                     <ul class="nav">
-                      <li><a href="{% url 'add_new_song' %}"><span class="mr-3"><i class="fa fa-plus" aria-hidden="true"></i></span> Add</a></li>
+                      {% if not user_role == "Listener" %}<li><a href="{% url 'add_new_song' %}"><span class="mr-3"><i class="fa fa-plus" aria-hidden="true"></i></span> Add</a></li> {% endif %}
                       <div class="topbar-divider d-sm-block"></div>
                       <li><a href="#"><span class="sort-icon mr-3"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i></span> Sort</a></li>
                       <div class="topbar-divider d-sm-block"></div>

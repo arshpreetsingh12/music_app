@@ -18,6 +18,7 @@ class HomePage(LoginRequiredMixin,View):
 	template_name = 'dashbaord.html'
 
 	def get(self,request):
+		dashboard_active = "active"
 		today = datetime.today()
 		week_start_date = today.date() - timedelta(days = 7)
 		weekly_listener = UserDetail.objects.filter(is_listener = True, created_at__date__gte = week_start_date).count()
@@ -109,6 +110,7 @@ class ListenerUsers(LoginRequiredMixin,View):
 	template_name = 'listener_users.html'
 
 	def get(self,request):
+		listener_active = "active"
 		users = UserDetail.objects.filter(is_listener = True)
 		return render(request,self.template_name,locals())
 
@@ -121,6 +123,7 @@ class ArtistUsers(LoginRequiredMixin,View):
 	template_name = 'artist_users.html'
 
 	def get(self,request):
+		artist_active = "active"
 		users = UserDetail.objects.filter(is_artist = True)
 		return render(request,self.template_name,locals())
 
@@ -133,6 +136,7 @@ class AdminUsers(LoginRequiredMixin,View):
 	template_name = 'admin-users.html'
 
 	def get(self,request):
+		admin_active = "active"
 		users = User.objects.filter(is_staff = True)
 		return render(request,self.template_name,locals())
 
@@ -145,6 +149,7 @@ class GeneresList(LoginRequiredMixin,View):
 	template_name = 'genre_list.html'
 
 	def get(self,request):
+		genre_active = "active"
 		genre_list = Genre.objects.all()
 		return render(request,self.template_name,locals())
 
@@ -167,6 +172,7 @@ class AllSongs(LoginRequiredMixin,View):
 		except Exception as e:
 			pass
 		
+		song_active = "active"
 		return render(request,self.template_name,locals())
 
 """ Add New Songs """
@@ -175,6 +181,7 @@ class AddNewSongs(LoginRequiredMixin,View):
 	template_name = 'add-new-songs.html'
 
 	def get(self,request):
+		song_active = "active"
 		all_artist = UserDetail.objects.filter(is_artist = True)
 		return render(request,self.template_name,locals())
 
@@ -290,6 +297,7 @@ class AddAlbum(LoginRequiredMixin,View):
 	template_name = 'add-album.html'
 
 	def get(self,request):
+		album_active = "active"
 		all_artist = UserDetail.objects.filter(is_artist = True)
 		if request.user.is_superuser or request.user.is_staff:
 			songs = Song.objects.all()
@@ -427,6 +435,7 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 	template_name = 'add-playlist.html'
 
 	def get(self,request):
+		playlist_active = "active"
 		artist_user = UserDetail.objects.filter(is_artist = True)
 		songs = Song.objects.all()
 		return render(request,self.template_name,locals())
@@ -470,6 +479,7 @@ class AllPlayList(LoginRequiredMixin,View):
 	template_name = 'playlist.html'
 
 	def get(self,request):
+		playlist_active = "active"
 		playlists = Playlist.objects.all()
 		return render(request,self.template_name,locals())
 
@@ -480,6 +490,7 @@ class PromostionView(LoginRequiredMixin,View):
 	template_name = 'promostion.html'
 
 	def get(self,request):
+		promo_active = "active"
 		return render(request,self.template_name,locals())
 
 		
@@ -489,6 +500,7 @@ class ReportUserView(LoginRequiredMixin,View):
 	template_name = 'report-user.html'
 
 	def get(self,request):
+		report_active = "active"
 		return render(request,self.template_name,locals())
 
 """ Add New Playlist """
