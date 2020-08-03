@@ -20,6 +20,7 @@
             <!-- Area Chart -->
             <div class="col-12">
               <div class="card mb-4">
+                  <div class="alert text-center alert-danger" style="display: none;" role="alert"></div>
                 <!-- Card Header - Dropdown -->
                 <div class="p-3 d-flex justify-content-between">
                   <div class="">
@@ -129,11 +130,12 @@
 
 
 $('.add-song').click(function(){
+  $('.alert-danger').html('');
+  $('.alert-danger').hide();
   var song_title = ($("input[name='song_title']").val()).trim();
   var song_mp3 = ($("input[name='song_mp3']").val()).trim();
   var artist = $(".artist").val();
   var submit = true;
-
     if (song_title==''|| song_title == null){
         $("input[name='song_title']").css('border', '1px solid red');
           submit = false;
@@ -149,7 +151,20 @@ $('.add-song').click(function(){
     else{
       $("input[name='song_mp3']").css('border', '1px solid #ced4da');
     }
-      
+    if (song_mp3 !=''|| song_mp3 != null){
+      if (song_mp3.slice(-4) == ".mp3"){
+        $("input[name='song_mp3']").css('border', '1px solid #ced4da');
+      }
+      else{
+        $('.alert-danger').append('Song file should be .mp3');
+         $('.alert-danger').show();
+           $('html,body').animate({
+            scrollTop: $(".alert-danger").offset().top
+        }, 'slow');
+        $("input[name='song_mp3']").css('border', '1px solid red');
+         submit = false;
+      }
+    }
     if (artist == ''|| artist == null){
         $('.artist').css('border', '1px solid red');
           submit = false;

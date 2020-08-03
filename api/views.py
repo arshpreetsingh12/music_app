@@ -277,6 +277,10 @@ class LoginAPIView(ObtainAuthToken):
 					context['user'] = user_data
 
 				if user_obj.is_listener:
+					liked_artist = LikeArtist.objects.filter(user = user, like = True)
+					if liked_artist:
+						liked = LikeArtistSerializer(liked_artist, many=True)
+						context['selected_artist_data'] = liked.data 
 					playlists = Playlist.objects.filter(user = user).count()
 					followers = Follwer.objects.filter(following_user = user).count()
 					following = Follwer.objects.filter(follower_user = user).count()
@@ -413,15 +417,25 @@ class UserInformation(APIView):
 		
 		try:
 			user = UserDetail.objects.get(user_id=request.user.id)
-			serializer = UserSerializer(request.user)
+			# serializer = UserSerializer(request.user)
 			userdetail = UserDetailSerializer(user)
-			context['status'] = True	
-			context['data'] =  serializer.data
+			context['status'] = True
+			data = {
+				'first_name':user.user.first_name,
+				'username':user.user.username,
+				 "email": user.user.email,
+			}	
+			context['data'] = data
 			context['detail'] =  userdetail.data
 			if user.is_artist:
 				artist_info = ArtistInfo.objects.get(info = user)
 				artist = ArtistInfoSerializer(artist_info)
 				context['artist_info'] = artist.data
+
+			liked_artist = LikeArtist.objects.filter(user = request.user, like = True)
+			if liked_artist:
+				liked = LikeArtistSerializer(liked_artist, many=True)
+				context['selected_artist_data'] = liked.data 
 
 		except Exception as e:
 			context['status'] = False	
@@ -858,11 +872,11 @@ class AddAlbumAPIView(APIView):
 			if not request.user.is_superuser or not request.user.is_staff:
 				user = UserDetail.objects.get(user_id = user_id)
 				if user.is_artist:
-					qs = Album.objects.filter(artist = user)
+					qs = Album.objects.filter(artist = user, is_deleted = False)
 				else:
-					qs = Album.objects.all()
+					qs = Album.objects.filter(is_deleted = False)
 			else:
-				qs = Album.objects.all()
+				qs = Album.objects.filter(is_deleted = False)
 			if not qs:
 				context['success'] = False
 				context['data'] = "album not found."		
@@ -935,7 +949,8 @@ class AddAlbumAPIView(APIView):
 			if user.is_artist: 
 				if album_id:
 					album_obj = Album.objects.get(pk = album_id,artist = user)
-					album_obj.delete()
+					album_obj.is_deleted = True
+					album_obj.save()
 					dictV['status'] = True
 					dictV['data'] = "Album successfully deleted."
 				else:
@@ -998,11 +1013,11 @@ class AlbumDetail(APIView):
 			if not request.user.is_superuser or not request.user.is_staff:
 				user = UserDetail.objects.get(user_id = user_id)
 				if user.is_artist:
-					qs = Album.objects.get(pk = album_id,artist = user)
+					qs = Album.objects.get(pk = album_id,artist = user,is_deleted = False)
 				else:
-					qs = Album.objects.get(pk = album_id)
+					qs = Album.objects.get(pk = album_id,is_deleted = False)
 			else:
-				qs = Album.objects.get(pk = album_id)
+				qs = Album.objects.get(pk = album_id,is_deleted = False)
 			
 			if not qs:
 				context['status'] = True
@@ -1549,6 +1564,11 @@ class ValidateToken(APIView):
 						'social_media':user_obj.artistinfo.social_media,
 					}
 					context['social_media'] = social_media
+
+				liked_artist = LikeArtist.objects.filter(user_id = user_obj.user.id, like = True)
+				if liked_artist:
+					liked = LikeArtistSerializer(liked_artist, many=True)
+					context['selected_artist_data'] = liked.data 
 					
 		except Token.DoesNotExist:
 			context['status'] = False

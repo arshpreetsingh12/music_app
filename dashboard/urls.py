@@ -16,8 +16,8 @@ urlpatterns = [
 
 	path('listener-users/', ListenerUsers.as_view(), name = "listener_users"),
 
-	path('add-genre/', AddGenre.as_view(), name = "add_genre"),
 	path('genre-list/', GeneresList.as_view(), name = "genre_list"),
+	path('add-genre/', AddGeneres.as_view(), name = "add_genre"),
 	
 	path('my-profile/', MyProfile.as_view(), name = "my_profile"),
 	

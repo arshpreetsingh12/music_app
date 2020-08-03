@@ -83,9 +83,19 @@ class SongSerializer(serializers.ModelSerializer):
 
 
 class LikeArtistSerializer(serializers.ModelSerializer):
+	name = serializers.SerializerMethodField()
+	image = serializers.SerializerMethodField()
+
 	class Meta:
-		model = LikeArtist
-		fields = '__all__'			
+		model = ArtistInfo
+		fields = ['id', 'name', 'image']
+
+	def get_name(self, instance):
+		return instance.artist.info.user.first_name
+
+	def get_image(self, instance):
+		return instance.artist.info.profile_pic.url
+
 
 class LikeSongSerializer(serializers.ModelSerializer):
 	class Meta:

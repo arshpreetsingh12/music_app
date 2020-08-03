@@ -12,6 +12,7 @@ from datetime import datetime,date,timedelta
 from .models import *
 from django.contrib.auth.mixins import LoginRequiredMixin
 import json
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class HomePage(LoginRequiredMixin,View):
 	login_url = 'web_login'
@@ -112,6 +113,15 @@ class ListenerUsers(LoginRequiredMixin,View):
 	def get(self,request):
 		listener_active = "active"
 		users = UserDetail.objects.filter(is_listener = True)
+
+		page = request.GET.get('page', 1)
+		paginator = Paginator(users, 10)
+		try:
+			page_data = paginator.page(page)
+		except PageNotAnInteger:
+			page_data = paginator.page(1)
+		except EmptyPage:
+			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
 
@@ -138,6 +148,15 @@ class AdminUsers(LoginRequiredMixin,View):
 	def get(self,request):
 		admin_active = "active"
 		users = User.objects.filter(is_staff = True)
+
+		page = request.GET.get('page', 1)
+		paginator = Paginator(users, 10)
+		try:
+			page_data = paginator.page(page)
+		except PageNotAnInteger:
+			page_data = paginator.page(1)
+		except EmptyPage:
+			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
 
@@ -154,12 +173,26 @@ class GeneresList(LoginRequiredMixin,View):
 		return render(request,self.template_name,locals())
 
 
+""" 
+	Add Genre 
+			"""
+class AddGeneres(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'add-genre.html'
+
+	def get(self,request):
+		genre_active = "active"
+		genre_list = Genre.objects.all()
+		return render(request,self.template_name,locals())
+
+
 """ Add New Songs """
 class AllSongs(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'all-songs.html'
 
 	def get(self,request):
+		all_song = ''
 		try:
 			if request.user.is_superuser or request.user.is_staff:
 				all_song = Song.objects.all()
@@ -173,6 +206,15 @@ class AllSongs(LoginRequiredMixin,View):
 			pass
 		
 		song_active = "active"
+		to_date = datetime.today().date()
+		page = request.GET.get('page', 1)
+		paginator = Paginator(all_song, 10)
+		try:
+			page_data = paginator.page(page)
+		except PageNotAnInteger:
+			page_data = paginator.page(1)
+		except EmptyPage:
+			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
 """ Add New Songs """
@@ -521,10 +563,3 @@ class SubscriptionView(LoginRequiredMixin,View):
 		return render(request,self.template_name,locals())
 
 
-""" Add New Playlist """
-class AddGenre(LoginRequiredMixin,View):
-	login_url = 'web_login'
-	template_name = 'genre-add.html'
-
-	def get(self,request):
-		return render(request,self.template_name,locals())

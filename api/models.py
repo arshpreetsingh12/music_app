@@ -36,6 +36,7 @@ class Genre(models.Model):
 	genre = models.CharField(max_length=50)
 	genre_color = models.CharField(max_length=50,null = True, blank = True)
 	color_hexcode = models.CharField(max_length=50,null = True, blank = True)
+	status = models.BooleanField(default=True)
 
 	def __str__(self):
 		return self.genre
@@ -84,17 +85,10 @@ class Album(models.Model):
 	description = models.TextField(max_length=1000, null = True, blank = True)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
+	is_deleted = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.album
-
-""" When uploader upload any album that object saved in this table  """
-# class AlbumSongs(models.Model):
-# 	albums = models.ForeignKey(Album, blank=True, null=True, on_delete=models.CASCADE)
-# 	song = models.ForeignKey(Song, blank=True, null=True, on_delete=models.CASCADE)
-
-	# def __str__(self):
-	# 	return self.albums.album
 
 
 """ When user like any artist that object saved in this table """

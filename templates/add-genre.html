@@ -3,8 +3,6 @@
 
 {% block content %}
 
-
-        <!-- Begin Page Content -->
         <div class="container-fluid">
 
           <!-- Page Heading -->
@@ -23,7 +21,7 @@
                 <!-- Card Header - Dropdown -->
                 <div class="p-3 d-flex justify-content-between">
                   <div class="">
-                    <h6>All Track Genres</h6>
+                    <h6>Add Track Genres</h6>
                   </div>
                  
                 </div>
@@ -34,7 +32,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Genre Name</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -47,11 +45,10 @@
                       <div class="form-group">
                         <label for="exampleInputPassword1">Status</label>
                         <select class="form-control" id="exampleFormControlSelect1">
-                          <option></option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
+                          <option disabled selected>Select status</option>
+                          <option value="A">Active</option>
+                          <option value="I">InActive</option>
+
                         </select>
                       </div>
                     </div>
@@ -62,7 +59,7 @@
                   </div>
 
                   <div class="px-3 text-right py-5">
-                      <button class="btn primary-btn mr-2">cancel</button>
+                      <button class="btn primary-btn mr-2 cancel-btn">cancel</button>
                       <button class="btn secondary-btn">save</button>
                   </div>
 
@@ -86,3 +83,17 @@
 
   </div>
 {% endblock %}
+
+
+
+{% block extrascript %}
+<script type="text/javascript">
+
+ $('.cancel-btn').on('click', function() {
+    window.history.back();
+  });
+
+
+</script>
+
+  {% endblock %}
