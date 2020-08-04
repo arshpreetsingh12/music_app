@@ -37,6 +37,7 @@ class Genre(models.Model):
 	genre_color = models.CharField(max_length=50,null = True, blank = True)
 	color_hexcode = models.CharField(max_length=50,null = True, blank = True)
 	status = models.BooleanField(default=True)
+	created_at  = models.DateTimeField(auto_now_add=True, null = True, blank = True)
 
 	def __str__(self):
 		return self.genre
@@ -125,6 +126,7 @@ class Playlist(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	artist = models.ForeignKey(ArtistInfo, on_delete=models.CASCADE, null = True, blank = True)
 	playlist = models.CharField(max_length=50)
+	Playlist_length = models.CharField(max_length=50, null = True, blank = True)
 	cover_image = models.FileField(upload_to = 'play_list', null = True, blank = True)
 	description = models.TextField(max_length=1000, null = True, blank = True)
 	created_at  = models.DateTimeField(auto_now_add=True)

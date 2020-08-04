@@ -34,6 +34,7 @@ urlpatterns = [
 	
 	path('all-playlist/', AllPlayList.as_view(), name = "all_playlist"),
 	path('add-new-playlist/', AddNewPlaylist.as_view(), name = "add_new_playlist"),
+	path('edit-playlist/<int:playlist_id>/', EditPlayList.as_view(), name = "edit_playlist"),
 
 	path('promotions/', PromostionView.as_view(), name = "promotions"),
 	

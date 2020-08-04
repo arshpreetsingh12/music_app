@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}
+<title>Add Genre</title>
+{% endblock %}
+
 {% block content %}
 
         <div class="container-fluid">
@@ -27,12 +31,14 @@
                 </div>
 
                 <!-- form -->
+                <form action="{% url 'add_genre' %}" method="post">
+                  {% csrf_token %}
                 <div class="pt-3 mb-3  ">
                   <div class="row px-3">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Genre Name</label>
-                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" name="genre_name" id="exampleInputPassword1" placeholder="">
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -44,7 +50,7 @@
                     <div class="col-md-4">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Status</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
+                        <select class="form-control status" name="genre_status" id="exampleFormControlSelect1">
                           <option disabled selected>Select status</option>
                           <option value="A">Active</option>
                           <option value="I">InActive</option>
@@ -59,12 +65,13 @@
                   </div>
 
                   <div class="px-3 text-right py-5">
-                      <button class="btn primary-btn mr-2 cancel-btn">cancel</button>
-                      <button class="btn secondary-btn">save</button>
+                      <button class="btn primary-btn mr-2 cancel-btn" type="button">cancel</button>
+                      <button class="btn secondary-btn add-genre" type="submit">save</button>
                   </div>
 
                 </div>
               </div>
+            </form>
             </div>
             
           </div>
@@ -93,7 +100,30 @@
     window.history.back();
   });
 
+$('.add-genre').click(function(){
+  var genre_name = ($("input[name='genre_name']").val()).trim();
+  var status = $(".status").val();
 
+  var submit = true;
+
+    if (genre_name==''|| genre_name == null){
+        $("input[name='genre_name']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='genre_name']").css('border', '1px solid #ced4da');
+    }
+
+    if (status==''|| status == null){
+        $(".status").css('border', '1px solid red');
+         submit = false;
+    }
+    else{
+      $(".status").css('border', '1px solid #ced4da');
+    }
+
+    return submit;
+});
 </script>
 
   {% endblock %}

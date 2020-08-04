@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-<title>Add Playlist</title>
+<title>Edit Playlist</title>
 {% endblock %}
 
 {% block content %}
@@ -27,20 +27,20 @@
                 <!-- Card Header - Dropdown -->
                 <div class="p-3 d-flex justify-content-between">
                   <div class="">
-                    <h6>Add New Playlist</h6>
+                    <h6>Edit Playlist</h6>
                   </div>
                  
                 </div>
 
                 <!-- form -->
-                <form action="{% url 'add_new_playlist' %}" method="post" enctype="multipart/form-data">
+                <form action="{% url 'edit_playlist' playlist_data.id %}" method="post" enctype="multipart/form-data">
                   {% csrf_token %}
                 <div class="pt-3 mb-3  ">
                   <div class="row px-3">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Title</label>
-                        <input type="text" class="form-control" name="title" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" name="title" id="exampleInputPassword1" placeholder="" {% if playlist_data.playlist %} value="{{playlist_data.playlist}}" {% endif %}>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -53,7 +53,7 @@
                          <select class="form-control choose-artist"  name="artist" id="exampleFormControlSelect1">
                           <option selected disabled>Select Artist</option>
                           {% for user in artist_user %}
-                          <option value="{{user.id}}">{{user.user.first_name}}</option>
+                          <option value="{{user.id}}" {% if user.id == playlist_data.artist.id %} selected {% endif %}>{{user.user.first_name}}</option>
                           {% endfor %}
                           <!-- <option>3</option>
                           <option>4</option>
@@ -67,7 +67,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Playlist Length eg: “04:20”</label>
-                        <input type="text" class="form-control" name="album_length" id="exampleInputPassword1" placeholder="">
+                        <input type="text" class="form-control" name="album_length" id="exampleInputPassword1" placeholder="" {% if playlist_data.Playlist_length %} value="{{playlist_data.Playlist_length}}" {% endif %}>
                       </div>
                     </div>
                     <div class="col-md-6">
@@ -76,6 +76,9 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Cover Image</label>
+                        {% if playlist_data.cover_image %}
+                        <div style="font-size: 12px;">Currently selected: <a href="{{playlist_data.cover_image.url}}" target="_blank">{{playlist_data.cover_image}}</a></div>
+                        {% endif %}
                         <input type="file" class="form-control custom-upload " name="cover_img" id="exampleFormControlFile1" accept="image/jpeg">
                       </div>
                     </div>
@@ -99,7 +102,7 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="exampleInputPassword1">Brief e.g. <i>“Enter any size of text description here”</i></label>
-                        <textarea class="form-control" name="discription" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        <textarea class="form-control" name="discription" id="exampleFormControlTextarea1" rows="3">{% if playlist_data.description %}{{playlist_data.description}} {% endif %}</textarea>
                       </div>
                     </div>
                   </div>
@@ -153,7 +156,6 @@ $('.add-playlist').click(function(){
     }
      else{
       $("input[name='title']").css('border', '1px solid #ced4da');
-      submit = true;
     } 
       
     if (artist == ''|| artist == null){
@@ -163,7 +165,6 @@ $('.add-playlist').click(function(){
 
     else{
       $('.choose-artist').css('border', '1px solid #ced4da');
-        submit = true;
    
      }
     if (select_song == ''|| select_song == null){
@@ -183,7 +184,6 @@ $('.add-playlist').click(function(){
     }
     else{
       $("textarea[name='discription']").css('border', '1px solid #ced4da');
-      submit = true;
     }
 
     return submit;

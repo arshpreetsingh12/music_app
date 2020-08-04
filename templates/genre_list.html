@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}
+<title>Genre List</title>
+{% endblock %}
+
+
+{% load custom_tags %}
 {% block content %}
 
         <!-- Begin Page Content -->
@@ -26,7 +32,7 @@
                   </div>
                   <div class="filter-side">
                     <ul class="nav">
-                      <li><a href="#"><span class="mr-3"><i class="fa fa-plus" aria-hidden="true"></i></span> Add</a></li>
+                      <li><a href="{% url 'add_genre' %}"><span class="mr-3"><i class="fa fa-plus" aria-hidden="true"></i></span> Add</a></li>
                       <div class="topbar-divider d-sm-block"></div>
                       <li><a href="#"><span class="sort-icon mr-3"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i></span> Sort</a></li>
                       <div class="topbar-divider d-sm-block"></div>
@@ -48,24 +54,29 @@
                       </tr>
                     </thead>
                     <tbody>
+                      {% for genre in genre_list %}
                       <tr>
                         <td>
-                          <div class="table-dark-td">Rock and Roll</div>
-                          <small class="text-white tbl-sml">Updated 1 day ago</small>
+                          <div class="table-dark-td">{{genre.genre}}</div>
+                           {% day_diffrence to_date|date:'Y-m-d' genre.created_at|date:"Y-m-d" as diffrence %}
+                          <small class="text-white tbl-sml">Updated {{diffrence}} ago</small>
                         </td>
                         <td>
                           <div class="table-dark-td">Tom Cruise</div>
-                          <small class="text-white tbl-sml">on 24.05.2019</small>
+                          <small class="text-white tbl-sml">on {{genre.created_at|date:"Y-m-d"}}</small>
                         </td>
                         <td>
-                          <div class="table-dark-td">May 26, 2019</div>
-                          <small class="text-white tbl-sml">6:30 PM</small>
+                           
+                          <div class="table-dark-td">{{genre.created_at|date:"Y-m-d"}}</div>
+                          <small class="text-white tbl-sml">{{ genre.created_at|date:"H:i" }}</small>
                         </td>
                         <td>
                           <button class="old-btn">OLD</button>
                         </td>
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
                       </tr>
+                      {% endfor %}
+                      {% comment %}
                       <tr>
                         <td>
                           <div class="table-dark-td">Rock and Roll</div>
@@ -174,9 +185,12 @@
                         </td>
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
                       </tr>
+                      {% endcomment %}
+                     
                       <tr>
                         <td colspan="13" class="text-right">
                           <div class="d-flex mr-4 align-items-center justify-content-end">
+                            {% comment %}
                             <div class="mr-5 nav-item dropdown d-inline-block">
                                 <a class="nav-link dropdown-toggle" href="#" id="perpage" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <p class="table-perPage mr-2 d-lg-inline text-white">Rows per page:<span class="ml-2 text-dark text-dark-700">8</span></p>
@@ -198,8 +212,9 @@
                                   
                                 </div>
                             </div>
+                            {% endcomment %}
                             <div class="page-pagination d-flex">
-                              <p class="pr-3 m-0"><span>1-8</span> of <span>1240</span></p>
+                              <p class="pr-3 m-0"><span> {% if page_data.has_previous %}{{ page_data.number|add:'-4' }}{% else %}{{ page_data.number }}{% endif %} to {% if page_data.paginator.num_pages > page_data.number|add:'5' %}{{ page_data.number|add:'4' }}{% else %}{{ page_data.paginator.num_pages }}{% endif %} of {{ page_data.paginator.num_pages }}</span></p>
                                 <span><i class="mr-3 fa fa-chevron-left" aria-hidden="true"></i></span>
                                 <span><i class=" fa fa-chevron-right" aria-hidden="true"></i></span>
                               
@@ -207,6 +222,7 @@
                           </div>
                         </td>
                       </tr>
+
                     </tbody>
                   </table>
                   

@@ -14,6 +14,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 import json
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+
+"""  Dashboard Home page   """
 class HomePage(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'dashbaord.html'
@@ -79,6 +81,8 @@ class Logout(View):
 		logout(request)
 		return HttpResponseRedirect(reverse('web_login'))
 
+
+"""  Logged in user's profile   """
 class MyProfile(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'my-profile.html'
@@ -170,23 +174,50 @@ class GeneresList(LoginRequiredMixin,View):
 	def get(self,request):
 		genre_active = "active"
 		genre_list = Genre.objects.all()
+		to_date = datetime.today().date()
+
+		page = request.GET.get('page', 1)
+		paginator = Paginator(genre_list, 10)
+		try:
+			page_data = paginator.page(page)
+		except PageNotAnInteger:
+			page_data = paginator.page(1)
+		except EmptyPage:
+			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
 
 """ 
 	Add Genre 
-			"""
+				"""
 class AddGeneres(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'add-genre.html'
 
 	def get(self,request):
 		genre_active = "active"
-		genre_list = Genre.objects.all()
 		return render(request,self.template_name,locals())
 
+	def post(self, request):
+		genre_name = request.POST.get('genre_name')
+		genre_status = request.POST.get('genre_status')
 
-""" Add New Songs """
+		try:
+			add_genre = Genre.objects.create(
+				genre = genre_name
+				)
+			if genre_status == "A":
+				add_genre.status = True
+			else:
+				add_genre.status = False
+			add_genre.save()
+			messages.success(request, "Genre successfully added.")
+			return HttpResponseRedirect(reverse('genre_list'))
+		except Exception as e:
+			messages.error(request, "Something went wrong.")
+			return HttpResponseRedirect(reverse('add_genre'))
+
+""" All songs List """
 class AllSongs(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'all-songs.html'
@@ -313,7 +344,7 @@ class AddAdmin(LoginRequiredMixin,View):
 
 
 
-""" Add New Album """
+""" All Album's list """
 class AllAlbums(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'all-albums.html'
@@ -391,6 +422,7 @@ class AddAlbum(LoginRequiredMixin,View):
 		return HttpResponseRedirect(reverse('add_album'))
 
 
+""" View album """
 class ViewAlbum(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'view-album.html'
@@ -462,7 +494,7 @@ class EditAlbum(LoginRequiredMixin,View):
 		return HttpResponseRedirect(reverse('add_album'))
 
 
-""" Add New Playlist """
+""" Financial """
 class Financial(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'finacial.html'
@@ -488,6 +520,7 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 		cover_img = request.FILES.get('cover_img')
 		discription = request.POST.get('discription')
 		selected_song = request.POST.getlist('selected_song')
+		playlist_length = request.POST.get('album_length')
 
 		try:
 			artist_info = ArtistInfo.objects.get(info_id = artist)
@@ -499,6 +532,8 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 				)
 			if cover_img:
 				add_play_list.cover_image = cover_img
+			if playlist_length:
+				add_play_list.Playlist_length = playlist_length
 			add_play_list.save()
 			for song in selected_song:
 				PlaylistTrack.objects.create(
@@ -524,6 +559,66 @@ class AllPlayList(LoginRequiredMixin,View):
 		playlist_active = "active"
 		playlists = Playlist.objects.all()
 		return render(request,self.template_name,locals())
+
+
+""" Edit Playlist """
+class EditPlayList(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'edit-playlist.html'
+
+	def get(self,request,playlist_id):
+		playlist_active = "active"
+		playlist_data = Playlist.objects.get(pk = playlist_id)
+		artist_user = UserDetail.objects.filter(is_artist = True)
+		songs = Song.objects.all()
+		return render(request,self.template_name,locals())
+
+	def post(self,request,playlist_id):
+		title = request.POST.get('title')
+		artist = request.POST.get('artist')
+		cover_img = request.FILES.get('cover_img')
+		discription = request.POST.get('discription')
+		selected_song = request.POST.getlist('selected_song')
+		playlist_length = request.POST.get('album_length')
+
+		try:
+			artist_info = ArtistInfo.objects.get(info_id = artist)
+			edit_play_list = Playlist.objects.get(pk = playlist_id)
+
+			if title:
+				edit_play_list.playlist = title
+			
+			if artist:
+				edit_play_list.artist = artist_info
+			
+			if discription:
+				edit_play_list.discription = discription
+
+			if playlist_length:
+				edit_play_list.Playlist_length = playlist_length
+
+			if cover_img:
+				edit_play_list.cover_image = cover_img
+			
+			edit_play_list.save()
+
+			############## delete all playlist songs ###############
+			PlaylistTrack.objects.filter(playlist = edit_play_list).delete()
+
+			############## add playlist songs ###############
+			for song in selected_song:
+				PlaylistTrack.objects.create(
+					user = request.user,
+					playlist = edit_play_list,
+					song_id = song
+					)
+			messages.info(request, "Playlist successfully updated.")
+			return HttpResponseRedirect(reverse('all_playlist'))
+		except Exception as e:
+			print(e)
+			messages.error(request, "Something went wrong. Please try again.")
+			return HttpResponseRedirect('/dashboard/edit-playlist/' + str(playlist_id))
+
 
 
 """ Add New Playlist """
