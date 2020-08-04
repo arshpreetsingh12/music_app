@@ -62,6 +62,9 @@ class LoginView(View):
 					else:
 						messages.error(request,'Invalid credentials.')
 						return HttpResponseRedirect(reverse('web_login'))
+				else:
+					messages.error(request,'Your account is not verify.')
+					return HttpResponseRedirect(reverse('web_login'))
 			else:
 				messages.error(request,'Incorrect email and password.')
 				return HttpResponseRedirect(reverse('web_login'))
@@ -318,6 +321,7 @@ class AddAdmin(LoginRequiredMixin,View):
 		try:
 			user = User.objects.get(Q(username = username)|Q(email = email))
 			messages.info(request, "User already exist.")
+			return HttpResponseRedirect(reverse('add_admin'))
 		except User.DoesNotExist:
 			add_user = User.objects.create(
 				username = username,
@@ -327,9 +331,9 @@ class AddAdmin(LoginRequiredMixin,View):
 				)
 			add_user.set_password(password)
 			if status == "A":
-				add_user.status = True
+				add_user.is_active = True
 			else:
-				add_user.status = False
+				add_user.is_active = False
 			add_user.is_staff = True
 			add_user.save()
 
@@ -340,7 +344,7 @@ class AddAdmin(LoginRequiredMixin,View):
 				)
 
 			messages.success(request, "User successfully added.")
-		return HttpResponseRedirect(reverse('add_admin'))
+			return HttpResponseRedirect(reverse('admin_users'))
 
 
 
@@ -415,11 +419,11 @@ class AddAlbum(LoginRequiredMixin,View):
 			
 			add_album.save()
 			messages.success(request, "Album successfully added.")
-
+			return HttpResponseRedirect(reverse('all_albums'))
 		except Exception as e:
 			print(e)
 			messages.error(request, "Something went wrong.")
-		return HttpResponseRedirect(reverse('add_album'))
+			return HttpResponseRedirect(reverse('add_album'))
 
 
 """ View album """
@@ -542,11 +546,11 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 					song_id = song
 					)
 			messages.info(request, "Playlist successfully added.")
-
+			return HttpResponseRedirect(reverse('all_playlist'))
 		except Exception as e:
 			print(e)
 			messages.error(request, "Something went wrong.Please try again.")
-		return HttpResponseRedirect(reverse('add_new_playlist'))
+			return HttpResponseRedirect(reverse('add_new_playlist'))
 
 
 
