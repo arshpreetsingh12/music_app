@@ -25,11 +25,11 @@
                <div class="playlist_raper_img">
                 {% if album.album_pic %}
                  <div class="play_icon_2">
-                   <a href="{% url 'view_album' album.id %}"><img class="" src="{{ album.album_pic.url }}"></a> 
+                   <a href="{% url 'edit_album' album.id %}"><img class="" src="{{ album.album_pic.url }}"></a> 
                  </div>
                  {% else %}
                   <div class="play_icon_2">
-                   <a href="{% url 'view_album' album.id %}"><img class="" src="{% static 'images/Play.svg' %}"></a> 
+                   <a href="{% url 'edit_album' album.id %}"><img class="" src="{% static 'images/Play.svg' %}"></a> 
                  </div>
                  {% endif %}
                </div>

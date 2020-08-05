@@ -14,6 +14,7 @@ urlpatterns = [
 	path('admin-users/', AdminUsers.as_view(), name = "admin_users"),
 	path('admin-profile/', AdminProfile.as_view(), name = "admin_profile"),
 	path('add-admin/', AddAdmin.as_view(), name = "add_admin"),
+	path('edit-admin/<int:user_id>/', EditAdmin.as_view(), name = "edit_admin"),
 
 
 	########## all artists  ########
@@ -25,7 +26,7 @@ urlpatterns = [
 	########## Genre related urls  ########
 	path('genre-list/', GeneresList.as_view(), name = "genre_list"),
 	path('add-genre/', AddGeneres.as_view(), name = "add_genre"),
-	path('edit-genre/<int:genre_id>', EditGeneres.as_view(), name = "edit_genre"),
+	path('edit-genre/<int:genre_id>/', EditGeneres.as_view(), name = "edit_genre"),
 	
 
 	########## logged in user's profile  ########
@@ -34,6 +35,7 @@ urlpatterns = [
 	########## songs related urls  ########
 	path('all-songs/', AllSongs.as_view(), name = "all_songs"),
 	path('add-new-song/', AddNewSongs.as_view(), name = "add_new_song"),
+	path('edit-song/<int:song_id>/', EditSongs.as_view(), name = "edit_song"),
 	
 
 	########## albums related urls  ########

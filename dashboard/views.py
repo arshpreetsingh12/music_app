@@ -121,8 +121,9 @@ class ListenerUsers(LoginRequiredMixin,View):
 		listener_active = "active"
 		users = UserDetail.objects.filter(is_listener = True)
 
+		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
-		paginator = Paginator(users, 10)
+		paginator = Paginator(users, row)
 		try:
 			page_data = paginator.page(page)
 		except PageNotAnInteger:
@@ -142,6 +143,16 @@ class ArtistUsers(LoginRequiredMixin,View):
 	def get(self,request):
 		artist_active = "active"
 		users = UserDetail.objects.filter(is_artist = True)
+
+		row = request.GET.get('row', 5)
+		page = request.GET.get('page', 1)
+		paginator = Paginator(users, row)
+		try:
+			page_data = paginator.page(page)
+		except PageNotAnInteger:
+			page_data = paginator.page(1)
+		except EmptyPage:
+			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
 
@@ -156,8 +167,9 @@ class AdminUsers(LoginRequiredMixin,View):
 		admin_active = "active"
 		users = User.objects.filter(is_staff = True)
 
+		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
-		paginator = Paginator(users, 10)
+		paginator = Paginator(users, row)
 		try:
 			page_data = paginator.page(page)
 		except PageNotAnInteger:
@@ -179,8 +191,9 @@ class GeneresList(LoginRequiredMixin,View):
 		genre_list = Genre.objects.all()
 		to_date = datetime.today().date()
 
+		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
-		paginator = Paginator(genre_list, 10)
+		paginator = Paginator(genre_list, row)
 		try:
 			page_data = paginator.page(page)
 		except PageNotAnInteger:
@@ -237,14 +250,13 @@ class EditGeneres(LoginRequiredMixin,View):
 
 		try:
 			add_genre = Genre.objects.get(pk = genre_id)
-			print(add_genre,'====================add_genre')
 			add_genre.genre = genre_name
 			if genre_status == "A":
 				add_genre.status = True
 			else:
 				add_genre.status = False
 			add_genre.save()
-			messages.success(request, "Genre successfully added.")
+			messages.success(request, "Genre successfully updated.")
 			return HttpResponseRedirect(reverse('genre_list'))
 		except Exception as e:
 			messages.error(request, "Something went wrong.")
@@ -272,8 +284,9 @@ class AllSongs(LoginRequiredMixin,View):
 		
 		song_active = "active"
 		to_date = datetime.today().date()
+		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
-		paginator = Paginator(all_song, 10)
+		paginator = Paginator(all_song, row)
 		try:
 			page_data = paginator.page(page)
 		except PageNotAnInteger:
@@ -320,6 +333,48 @@ class AddNewSongs(LoginRequiredMixin,View):
 			print(e)
 			messages.error(request, "Something went wrong.")
 		return HttpResponseRedirect(reverse('add_new_song'))
+
+""" Edit Songs """
+class EditSongs(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'edit-song.html'
+
+	def get(self,request,song_id):
+		song_active = "active"
+		all_artist = UserDetail.objects.filter(is_artist = True)
+		song = Song.objects.get(pk = song_id)
+		return render(request,self.template_name,locals())
+
+	def post(self, request,song_id):
+		artist = request.POST.get('artist')
+		song_title = request.POST.get('song_title')
+		song_length = request.POST.get('song_length')
+		song_img = request.FILES.get('song_img')
+		song_mp3 = request.FILES.get('song_mp3')
+		description = request.POST.get('description')
+
+		try:
+			add_song = Song.objects.get(pk = song_id)
+			if artist:
+				add_song.user_id = artist
+			if song_title:
+				add_song.song_title = song_title
+			if song_length:
+				add_song.song_length = song_length		
+			if song_img:
+				add_song.song_image = song_img
+			if song_mp3:
+				add_song.song_mp3 = song_mp3
+			if description:
+				add_song.description = description
+			add_song.save()
+			messages.success(request, "Song successfully updated.")
+			return HttpResponseRedirect(reverse('all_songs'))
+		except Exception as e:
+			print(e)
+			messages.error(request, "Something went wrong.")
+			return HttpResponseRedirect('dashboard/edit-song/' + str(song_id))
+
 
 """ Admin profile """
 class AdminProfile(LoginRequiredMixin,View):
@@ -377,6 +432,53 @@ class AddAdmin(LoginRequiredMixin,View):
 			messages.success(request, "User successfully added.")
 			return HttpResponseRedirect(reverse('admin_users'))
 
+
+""" Edit  Admin """
+class EditAdmin(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'edit-admin.html'
+
+	def get(self,request, user_id):
+		user = User.objects.get(pk = user_id)
+		return render(request,self.template_name,locals())	
+
+	def post(self,request,user_id):
+		username = request.POST.get('user_name')
+		password = request.POST.get('password')
+		first_name = request.POST.get('first_name')
+		last_name = request.POST.get('last_name')
+		email = request.POST.get('email')
+		status = request.POST.get('status')
+		address = request.POST.get('address')
+		phone_number = request.POST.get('phone')
+
+		try:
+			user = User.objects.get(pk = user_id)
+			user.username = username
+			user.email = email
+			user.first_name = first_name
+			if last_name:
+				user.last_name = last_name
+
+			if password:
+				user.set_password(password)
+			if status == "A":
+				user.is_active = True
+			else:
+				user.is_active = False
+			user.is_staff = True
+			user.save()
+
+			extra_detail,created = AdminDetail.objects.get_or_create(user = user)
+			extra_detail.phone_number = phone_number
+			extra_detail.address = address
+			extra_detail.save()
+
+			messages.success(request, "User successfully updated.")
+			return HttpResponseRedirect(reverse('admin_users'))
+		except User.DoesNotExist:
+			messages.error(request, "Invalid user id.")
+			return HttpResponseRedirect('/dashboard/edit-admin/' + str(user_id))
 
 
 """ All Album's list """
@@ -486,7 +588,7 @@ class EditAlbum(LoginRequiredMixin,View):
 			pass		
 		return render(request,self.template_name,locals())
 
-	def post(self, request):
+	def post(self, request, album_id):
 		artist = request.POST.get('artist')
 		twitter_url = request.POST.get('twitter_url')
 		album_length = request.POST.get('album_length')
@@ -499,34 +601,44 @@ class EditAlbum(LoginRequiredMixin,View):
 		selected_song = request.POST.getlist('selected_song')
 
 		try:
-			add_album = Album.objects.create(
-				artist_id = artist,
-				album = album_title,
-				)
+			add_album = Album.objects.get(pk = album_id)
 			add_album.song.set(selected_song)
+			
+			if artist:
+				add_album.artist_id = artist
+		
+			if album_title:
+				add_album.album = album_title 
+		
 			if album_pic:
 				add_album.album_pic = album_pic
 			
 			if fb_url:
 				add_album.fb_url = fb_url
+		
 			if twitter_url:
 				add_album.twitter_url = twitter_url
+		
 			if google_url:
 				add_album.google_url = google_url
+		
 			if website_url:
 				add_album.website_url = website_url
+			
 			if description:
 				add_album.description = description
+			
 			if album_length:
 				add_album.album_length = album_length
 			
 			add_album.save()
-			messages.success(request, "Album successfully added.")
+			messages.success(request, "Album successfully updated.")
+			return HttpResponseRedirect(reverse('all_albums'))
 
 		except Exception as e:
 			print(e)
 			messages.error(request, "Something went wrong.")
-		return HttpResponseRedirect(reverse('add_album'))
+			return HttpResponseRedirect('/dashboard/edit-album/' + str(album_id))
 
 
 """ Financial """

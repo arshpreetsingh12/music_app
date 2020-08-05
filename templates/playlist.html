@@ -25,12 +25,12 @@
              <div class="playlist_box">
                <div class="playlist_raper_img">
                 {% if list.cover_image %}
-                <img class="" src="{{list.cover_image.url}}">
+               <a href="{% url 'edit_playlist' list.id %}"> <img class="" src="{{list.cover_image.url}}"></a>
                 {% else %}
-                 <img class="" src="{% static 'images/Mask-music.png' %}">
+               <a href="{% url 'edit_playlist' list.id %}"><img class="" src="{% static 'images/Mask-music.png' %}"></a>
                  {% endif %}
                  <div class="play_icon">
-                   <a href="#"><img class="" src="{% static 'images/Play.svg' %}"></a> 
+                   <a href="{% url 'edit_playlist' list.id %}"><img class="" src="{% static 'images/Play.svg' %}"></a> 
                  </div>
                </div>
                <p>{{list.playlist}} - {{list.description}}</p>

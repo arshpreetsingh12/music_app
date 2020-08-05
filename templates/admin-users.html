@@ -32,7 +32,7 @@
                     <ul class="nav">
                       <li><a href="{% url 'add_admin' %}"><span class="mr-3"><i class="fa fa-plus" aria-hidden="true"></i></span> Add</a></li>
                       <div class="topbar-divider d-sm-block"></div>
-                      <li><a href="#"><span class="sort-icon mr-3"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i></span> Sort</a></li>
+                      <li><a href="javascript:void(0);"  onclick="sortTable()"><span class="sort-icon mr-3"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i></span> Sort</a></li>
                       <div class="topbar-divider d-sm-block"></div>
                       <li><a href="#"><span class="mr-3"><i class="fa fa-filter" aria-hidden="true"></i></span>Filters</a></li>
                     </ul>
@@ -41,7 +41,7 @@
 
                 <!-- table -->
                 <div class="pt-3 mb-0 white-table table table-responsive ">
-                  <table class="music-tbl table mb-0">
+                  <table class="music-tbl table mb-0" id="myTable">
                     <thead>
                       <tr>
                         <th scope="col">User ID</th>
@@ -49,11 +49,12 @@
                         <th scope="col">First Name</th>
                         <th scope="col">Last Name</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Action</th>
                         <th scope="col">Tools</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {% for user in users %}
+                      {% for user in page_data %}
                       <tr>
                         <td>
                           <div class="table-dark-td">{{user.username}}</div>
@@ -66,41 +67,67 @@
                         <td>{{user.last_name}}<br>
                           <small class="text-white">{{ user.date_joined|date:"H:i" }}</small></td>
                         <td>{% if user.is_active %} Active {% else %} Inactive {% endif %}</td>
+                        <td>
+                        <a href="{% url 'edit_admin' user.id %}"><button class="old-btn">Edit</button></a>
+                        </td>
                         <td><i class="fa fa-eye" aria-hidden="true"></i></td>
                       </tr>
                       {% endfor %}
                   
-                      <tr>
+                     <tr>
                         <td colspan="13" class="text-right">
                           <div class="d-flex mr-4 align-items-center justify-content-end">
-                            {% comment %}
+                    
                             <div class="mr-5 nav-item dropdown d-inline-block">
                                 <a class="nav-link dropdown-toggle" href="#" id="perpage" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <p class="table-perPage mr-2 d-lg-inline text-white">Rows per page:<span class="ml-2 text-dark text-dark-700">8</span></p>
+                                    <p class="table-perPage mr-2 d-lg-inline text-white">Rows per page:<span class="ml-2 text-dark text-dark-700">{{row}}</span></p>
                                 </a>
                                 <!-- Dropdown - User Information -->
                                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="perpage">
-                                  <a class="dropdown-item" href="#">
+                                  <a class="dropdown-item" href="?row=5">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
+                                 5
                                   </a>
-                                  <a class="dropdown-item" href="#">
+                                  <a class="dropdown-item" href="?row=10">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
+                                    10
                                   </a>
-                                  <a class="dropdown-item" href="#">
+                                  <a class="dropdown-item" href="?row=25">
                                     <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
+                                   25
                                   </a>
                                   
                                 </div>
                             </div>
-                            {% endcomment %}
+                     
                             <div class="page-pagination d-flex">
+
                               <p class="pr-3 m-0"><span> {% if page_data.has_previous %}{{ page_data.number|add:'-4' }}{% else %}{{ page_data.number }}{% endif %} to {% if page_data.paginator.num_pages > page_data.number|add:'5' %}{{ page_data.number|add:'4' }}{% else %}{{ page_data.paginator.num_pages }}{% endif %} of {{ page_data.paginator.num_pages }}</span></p>
-                                <span><i class="mr-3 fa fa-chevron-left" aria-hidden="true"></i></span>
-                                <span><i class=" fa fa-chevron-right" aria-hidden="true"></i></span>
-                              
+                              <ul  class="pagination">
+                               {% if page_data.has_previous %}
+                                
+                                 <li class="paginate_button page-item previous" id="default_order_previous"><a href="?page={{ page_data.previous_page_number }}"><span><i class="mr-3 fa fa-chevron-left" aria-hidden="true"></i></span></a></li>
+                              {% else %}
+                              <li class="paginate_button page-item previous disabled" id="default_order_previous">
+                              <a href="javascript:void(0);">  <span><i class="mr-3 fa fa-chevron-left" aria-hidden="true"></i></span></a></li>
+                              {% endif %}
+                               {% for i in page_data.paginator.page_range %}
+                                  {% if page_data.number == i %}
+                                       <li class="paginate_button page-item active"><a href="?page={{ i }}" class="page-link" style="font-size: 10px;">{{ i }}</a></li>
+                                  {% elif i > page_data.number|add:'-5' and i < page_data.number|add:'5' %}
+                                      <li class="paginate_button page-item"><a href="?page={{ i }}" class="page-link" style="font-size: 10px;">{{ i }}</a></li>
+                                  {% endif %}
+                              {% endfor %}
+         
+                                 {% if page_data.has_next %}
+                                <li class="paginate_button page-item next" id="default_order_next">
+                              <a href="?page={{ page_data.next_page_number }}"><span style="margin-left: 15px;"><i class=" fa fa-chevron-right" aria-hidden="true"></i></span></a></li>
+                               {% else %}
+                                <li class="paginate_button page-item next disabled" id="default_order_next"> <a href="javascript:void(0);">  <span style="margin-left: 15px;"><i class=" fa fa-chevron-right" aria-hidden="true"></i></span></a></li>
+                              {% endif %}
+                               </ul>
+                         
+                          </div>
                             </div>
                           </div>
                         </td>
@@ -127,4 +154,8 @@
     <!-- End of Content Wrapper -->
 
   </div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/sort_table.js' %}"></script>
 {% endblock %}
