@@ -220,6 +220,37 @@ class AddGeneres(LoginRequiredMixin,View):
 			messages.error(request, "Something went wrong.")
 			return HttpResponseRedirect(reverse('add_genre'))
 
+
+
+class EditGeneres(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'edit-genre.html'
+
+	def get(self,request,genre_id):
+		genre_active = "active"
+		genre_data = Genre.objects.get(pk = genre_id)
+		return render(request,self.template_name,locals())
+
+	def post(self, request, genre_id):
+		genre_name = request.POST.get('genre_name')
+		genre_status = request.POST.get('genre_status')
+
+		try:
+			add_genre = Genre.objects.get(pk = genre_id)
+			print(add_genre,'====================add_genre')
+			add_genre.genre = genre_name
+			if genre_status == "A":
+				add_genre.status = True
+			else:
+				add_genre.status = False
+			add_genre.save()
+			messages.success(request, "Genre successfully added.")
+			return HttpResponseRedirect(reverse('genre_list'))
+		except Exception as e:
+			messages.error(request, "Something went wrong.")
+			return HttpResponseRedirect('/dashboard/edit-genre/' + str(genre_id))
+
+
 """ All songs List """
 class AllSongs(LoginRequiredMixin,View):
 	login_url = 'web_login'

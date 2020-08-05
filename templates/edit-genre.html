@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+<title>Add Genre</title>
+{% endblock %}
+
+{% block content %}
+
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <!-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+          </div> -->
+
+          <!-- Content Row -->
+
+          <div class="row">
+
+            <!-- Area Chart -->
+            <div class="col-12">
+              <div class="card mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="p-3 d-flex justify-content-between">
+                  <div class="">
+                    <h6>Add Track Genres</h6>
+                  </div>
+                 
+                </div>
+
+                <!-- form -->
+                <form action="{% url 'edit_genre' genre_data.id %}" method="post">
+                  {% csrf_token %}
+                <div class="pt-3 mb-3  ">
+                  <div class="row px-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Genre Name</label>
+                        <input type="text" class="form-control" name="genre_name" id="exampleInputPassword1" value="{{genre_data.genre}}" placeholder="">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      
+                    </div>
+                   
+                   
+                    
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Status</label>
+                        <select class="form-control status" name="genre_status" id="exampleFormControlSelect1">
+                          <!-- <option disabled selected>Select status</option> -->
+                          <option value="A" {% if genre_data.status == True %} selected {% endif %}>Active</option>
+                          <option value="I" {% if genre_data.status == False %} selected {% endif %}>InActive</option>
+
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      
+                    </div>
+                  
+                  </div>
+
+                  <div class="px-3 text-right py-5">
+                      <button class="btn primary-btn mr-2 cancel-btn" type="button">cancel</button>
+                      <button class="btn secondary-btn add-genre" type="submit">save</button>
+                  </div>
+
+                </div>
+              </div>
+            </form>
+            </div>
+            
+          </div>
+
+          <!-- Content Row -->
+          
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+{% endblock %}
+
+
+
+{% block extrascript %}
+<script type="text/javascript">
+
+ $('.cancel-btn').on('click', function() {
+    window.history.back();
+  });
+
+$('.add-genre').click(function(){
+  var genre_name = ($("input[name='genre_name']").val()).trim();
+  var status = $(".status").val();
+
+  var submit = true;
+
+    if (genre_name==''|| genre_name == null){
+        $("input[name='genre_name']").css('border', '1px solid red');
+          submit = false;
+    }
+     else{
+      $("input[name='genre_name']").css('border', '1px solid #ced4da');
+    }
+
+    if (status==''|| status == null){
+        $(".status").css('border', '1px solid red');
+         submit = false;
+    }
+    else{
+      $(".status").css('border', '1px solid #ced4da');
+    }
+
+    return submit;
+});
+</script>
+
+  {% endblock %}

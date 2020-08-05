@@ -25,6 +25,7 @@ urlpatterns = [
 	########## Genre related urls  ########
 	path('genre-list/', GeneresList.as_view(), name = "genre_list"),
 	path('add-genre/', AddGeneres.as_view(), name = "add_genre"),
+	path('edit-genre/<int:genre_id>', EditGeneres.as_view(), name = "edit_genre"),
 	
 
 	########## logged in user's profile  ########

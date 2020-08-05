@@ -146,7 +146,7 @@
                         <td>50,000<br>
                           <small class="text-white">on 24.05.2019</small>
                         </td>
-                        <td class="{{user.user.status}}">{% if user.user.status %} Active {% else %} Inactive {% endif %}</td>
+                        <td>{% if user.user.is_active %} Active {% else %} Inactive {% endif %}</td>
                       </tr>
                       {% endfor %}
                      

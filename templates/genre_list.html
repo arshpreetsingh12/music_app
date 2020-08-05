@@ -55,7 +55,8 @@
                     </thead>
                     <tbody>
                       {% for genre in genre_list %}
-                      <tr>
+                
+                      <tr href="{% url 'edit_genre' genre.id %}">
                         <td>
                           <div class="table-dark-td">{{genre.genre}}</div>
                            {% day_diffrence to_date|date:'Y-m-d' genre.created_at|date:"Y-m-d" as diffrence %}
@@ -75,6 +76,7 @@
                         </td>
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
                       </tr>
+
                       {% endfor %}
                       {% comment %}
                       <tr>
@@ -246,3 +248,14 @@
 
   </div>
 {% endblock %}
+
+{% block extrascript %}
+
+<script type="text/javascript">
+ $('table tr').click(function(){
+        window.location = $(this).attr('href');
+        return false;
+    });
+
+ </script>
+ {% endblock %}
