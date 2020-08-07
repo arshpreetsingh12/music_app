@@ -37,6 +37,7 @@ class Genre(models.Model):
 	genre_color = models.CharField(max_length=50,null = True, blank = True)
 	color_hexcode = models.CharField(max_length=50,null = True, blank = True)
 	status = models.BooleanField(default=True)
+	is_deleted = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True, null = True, blank = True)
 
 	def __str__(self):

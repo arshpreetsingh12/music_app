@@ -50,6 +50,7 @@
                         <th scope="col"># of Tracks</th>
                         <th scope="col">Date Created</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Is Deleted</th>
                         <th scope="col">Action</th>
                         <th scope="col"></th>
                       </tr>
@@ -78,7 +79,14 @@
                           Inactive {% endif %}</div>
                         </td>
                         <td>
+                          <!-- <button class="old-btn">OLD</button> -->
+                          <div class="table-dark-td">{% if genre.is_deleted == True %} True {% else %}
+                          False {% endif %}</div>
+                        </td>
+                        <td>
                          <a href="{% url 'edit_genre' genre.id %}"><button class="old-btn">Edit</button></a>
+                         {% if genre.is_deleted == False %} <button class="old-btn delete-genre" data-id="{{genre.id}}">Delete</button> {% endif %}
+                         
                         </td>
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
                       </tr>
@@ -170,4 +178,31 @@
 {% endblock %}
 {% block extrascript %}
 <script src="{% static 'js/sort_table.js' %}"></script>
+
+<script type="text/javascript">
+  
+  $('.delete-genre').click(function(){
+    var gen_id = $(this).attr('data-id');
+    console.log(gen_id,'===========================gen_id')
+
+    $.ajax({
+            url:"{% url 'genre_list' %}",
+            type:'POST',
+            data:{
+               'csrfmiddlewaretoken':'{{csrf_token}}',
+                'genre_id':gen_id,
+               
+            },
+            success: function(response) {
+                if (response.status == true){
+                  window.location.reload();
+                }
+                else{
+                  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                }
+            }
+    })
+  })
+
+</script>
 {% endblock %}

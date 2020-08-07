@@ -203,6 +203,23 @@ class GeneresList(LoginRequiredMixin,View):
 		return render(request,self.template_name,locals())
 
 
+	####### delete genre ###############	
+	def post(self,request):
+		response = {}
+		genre_id = request.POST.get('genre_id')
+
+		try:
+			genre_obj = Genre.objects.get(pk = genre_id)
+			genre_obj.is_deleted = True
+			genre_obj.save()
+			response['status'] = True
+		except Exception as e:
+			print(e,'------------------------------ee')
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
+	
+
+
 """ 
 	Add Genre 
 				"""
