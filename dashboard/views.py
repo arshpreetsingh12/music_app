@@ -40,7 +40,7 @@ class LoginView(View):
 		return render(request,self.template_name,locals())
 
 	def post(self, request, *args, **kwargs):
-		email = request.POST.get('email')
+		email = request.POST.get('email').lower()
 		password = request.POST.get('password')
 		try:
 			if email != "" and password != "": 
@@ -119,7 +119,7 @@ class ListenerUsers(LoginRequiredMixin,View):
 
 	def get(self,request):
 		listener_active = "active"
-		users = UserDetail.objects.filter(is_listener = True)
+		users = UserDetail.objects.filter(is_listener = True, is_deleted = False)
 
 		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
@@ -132,6 +132,22 @@ class ListenerUsers(LoginRequiredMixin,View):
 			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
+
+	####### delete ListenerUsers ###############	
+	def post(self,request):
+		response = {}
+		user_id = request.POST.get('user_id')
+
+		try:
+			user_obj = UserDetail.objects.get(pk = user_id)
+			user_obj.is_deleted = True
+			user_obj.user.is_active = False
+			user_obj.user.save()
+			user_obj.save()
+			response['status'] = True
+		except Exception as e:
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
 
 """ 
 	Artist user list 
@@ -142,7 +158,7 @@ class ArtistUsers(LoginRequiredMixin,View):
 
 	def get(self,request):
 		artist_active = "active"
-		users = UserDetail.objects.filter(is_artist = True)
+		users = UserDetail.objects.filter(is_artist = True, is_deleted = False)
 
 		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
@@ -154,6 +170,24 @@ class ArtistUsers(LoginRequiredMixin,View):
 		except EmptyPage:
 			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
+
+
+	####### delete artist ###############	
+	def post(self,request):
+		response = {}
+		user_id = request.POST.get('user_id')
+
+		try:
+			user_obj = UserDetail.objects.get(pk = user_id)
+			user_obj.is_deleted = True
+			user_obj.user.is_active = False
+			user_obj.user.save()
+			user_obj.save()
+			response['status'] = True
+		except Exception as e:
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
+
 
 
 """ 
@@ -165,7 +199,7 @@ class AdminUsers(LoginRequiredMixin,View):
 
 	def get(self,request):
 		admin_active = "active"
-		users = User.objects.filter(is_staff = True)
+		users = User.objects.filter(is_staff = True).exclude(pk = request.user.id)
 
 		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
@@ -178,6 +212,127 @@ class AdminUsers(LoginRequiredMixin,View):
 			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
+
+
+	####### delete admin ###############	
+	def post(self,request):
+		response = {}
+		user_id = request.POST.get('user_id')
+
+		try:
+			user_obj = User.objects.get(pk = user_id)
+			user_obj.is_active = False
+			user_obj.save()
+			response['status'] = True
+		except Exception as e:
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
+
+
+
+""" Admin profile """
+class AdminProfile(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'admin-profile.html'
+
+	def get(self,request):
+		return render(request,self.template_name,locals())
+	
+
+""" Add New Admin """
+class AddAdmin(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'add-new-admin.html'
+
+	def get(self,request):
+
+		return render(request,self.template_name,locals())	
+
+	def post(self,request):
+		username = request.POST.get('user_name').lower()
+		password = request.POST.get('password')
+		first_name = request.POST.get('first_name')
+		last_name = request.POST.get('last_name')
+		email = request.POST.get('email').lower()
+		status = request.POST.get('status')
+		address = request.POST.get('address')
+		phone_number = request.POST.get('phone')
+
+		try:
+			user = User.objects.get(Q(username = username)|Q(email = email))
+			messages.info(request, "User already exist.")
+			return HttpResponseRedirect(reverse('add_admin'))
+		except User.DoesNotExist:
+			add_user = User.objects.create(
+				username = username,
+				email = email,
+				first_name = first_name,
+				last_name = last_name
+				)
+			add_user.set_password(password)
+			if status == "A":
+				add_user.is_active = True
+			else:
+				add_user.is_active = False
+			add_user.is_staff = True
+			add_user.save()
+
+			extra_detail = AdminDetail.objects.create(
+				user = add_user,
+				phone_number = phone_number,
+				address = address
+				)
+
+			messages.success(request, "User successfully added.")
+			return HttpResponseRedirect(reverse('admin_users'))
+
+
+""" Edit  Admin """
+class EditAdmin(LoginRequiredMixin,View):
+	login_url = 'web_login'
+	template_name = 'edit-admin.html'
+
+	def get(self,request, user_id):
+		user = User.objects.get(pk = user_id)
+		return render(request,self.template_name,locals())	
+
+	def post(self,request,user_id):
+		username = request.POST.get('user_name')
+		password = request.POST.get('password')
+		first_name = request.POST.get('first_name')
+		last_name = request.POST.get('last_name')
+		email = request.POST.get('email')
+		status = request.POST.get('status')
+		address = request.POST.get('address')
+		phone_number = request.POST.get('phone')
+
+		try:
+			user = User.objects.get(pk = user_id)
+			user.username = username
+			user.email = email
+			user.first_name = first_name
+			if last_name:
+				user.last_name = last_name
+
+			if password:
+				user.set_password(password)
+			if status == "A":
+				user.is_active = True
+			else:
+				user.is_active = False
+			user.is_staff = True
+			user.save()
+
+			extra_detail,created = AdminDetail.objects.get_or_create(user = user)
+			extra_detail.phone_number = phone_number
+			extra_detail.address = address
+			extra_detail.save()
+
+			messages.success(request, "User successfully updated.")
+			return HttpResponseRedirect(reverse('admin_users'))
+		except User.DoesNotExist:
+			messages.error(request, "Invalid user id.")
+			return HttpResponseRedirect('/dashboard/edit-admin/' + str(user_id))
 
 """ 
 	 GenreList list 
@@ -214,7 +369,6 @@ class GeneresList(LoginRequiredMixin,View):
 			genre_obj.save()
 			response['status'] = True
 		except Exception as e:
-			print(e,'------------------------------ee')
 			response['status'] = False
 		return HttpResponse(json.dumps(response),content_type="application/json")
 	
@@ -312,6 +466,21 @@ class AllSongs(LoginRequiredMixin,View):
 			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
 
+
+	####### delete song ###############	
+	def post(self,request):
+		response = {}
+		song_id = request.POST.get('song_id')
+
+		try:
+			song_obj = Song.objects.get(pk = song_id)
+			song_obj.delete = True
+			song_obj.save()
+			response['status'] = True
+		except Exception as e:
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
+
 """ Add New Songs """
 class AddNewSongs(LoginRequiredMixin,View):
 	login_url = 'web_login'
@@ -393,109 +562,6 @@ class EditSongs(LoginRequiredMixin,View):
 			return HttpResponseRedirect('dashboard/edit-song/' + str(song_id))
 
 
-""" Admin profile """
-class AdminProfile(LoginRequiredMixin,View):
-	login_url = 'web_login'
-	template_name = 'admin-profile.html'
-
-	def get(self,request):
-		return render(request,self.template_name,locals())
-	
-
-""" Add New Admin """
-class AddAdmin(LoginRequiredMixin,View):
-	login_url = 'web_login'
-	template_name = 'add-new-admin.html'
-
-	def get(self,request):
-
-		return render(request,self.template_name,locals())	
-
-	def post(self,request):
-		username = request.POST.get('user_name')
-		password = request.POST.get('password')
-		first_name = request.POST.get('first_name')
-		last_name = request.POST.get('last_name')
-		email = request.POST.get('email')
-		status = request.POST.get('status')
-		address = request.POST.get('address')
-		phone_number = request.POST.get('phone')
-
-		try:
-			user = User.objects.get(Q(username = username)|Q(email = email))
-			messages.info(request, "User already exist.")
-			return HttpResponseRedirect(reverse('add_admin'))
-		except User.DoesNotExist:
-			add_user = User.objects.create(
-				username = username,
-				email = email,
-				first_name = first_name,
-				last_name = last_name
-				)
-			add_user.set_password(password)
-			if status == "A":
-				add_user.is_active = True
-			else:
-				add_user.is_active = False
-			add_user.is_staff = True
-			add_user.save()
-
-			extra_detail = AdminDetail.objects.create(
-				user = add_user,
-				phone_number = phone_number,
-				address = address
-				)
-
-			messages.success(request, "User successfully added.")
-			return HttpResponseRedirect(reverse('admin_users'))
-
-
-""" Edit  Admin """
-class EditAdmin(LoginRequiredMixin,View):
-	login_url = 'web_login'
-	template_name = 'edit-admin.html'
-
-	def get(self,request, user_id):
-		user = User.objects.get(pk = user_id)
-		return render(request,self.template_name,locals())	
-
-	def post(self,request,user_id):
-		username = request.POST.get('user_name')
-		password = request.POST.get('password')
-		first_name = request.POST.get('first_name')
-		last_name = request.POST.get('last_name')
-		email = request.POST.get('email')
-		status = request.POST.get('status')
-		address = request.POST.get('address')
-		phone_number = request.POST.get('phone')
-
-		try:
-			user = User.objects.get(pk = user_id)
-			user.username = username
-			user.email = email
-			user.first_name = first_name
-			if last_name:
-				user.last_name = last_name
-
-			if password:
-				user.set_password(password)
-			if status == "A":
-				user.is_active = True
-			else:
-				user.is_active = False
-			user.is_staff = True
-			user.save()
-
-			extra_detail,created = AdminDetail.objects.get_or_create(user = user)
-			extra_detail.phone_number = phone_number
-			extra_detail.address = address
-			extra_detail.save()
-
-			messages.success(request, "User successfully updated.")
-			return HttpResponseRedirect(reverse('admin_users'))
-		except User.DoesNotExist:
-			messages.error(request, "Invalid user id.")
-			return HttpResponseRedirect('/dashboard/edit-admin/' + str(user_id))
 
 
 """ All Album's list """
@@ -527,10 +593,10 @@ class AddAlbum(LoginRequiredMixin,View):
 		album_active = "active"
 		all_artist = UserDetail.objects.filter(is_artist = True)
 		if request.user.is_superuser or request.user.is_staff:
-			songs = Song.objects.all()
+			songs = Song.objects.filter(delete = False)
 		else:
 			current_user = UserDetail.objects.get(user_id = request.user.id)
-			songs = Song.objects.filter(user = current_user)
+			songs = Song.objects.filter(user = current_user, delete = False)
 		return render(request,self.template_name,locals())
 
 	def post(self, request):

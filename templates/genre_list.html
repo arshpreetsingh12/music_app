@@ -183,8 +183,7 @@
   
   $('.delete-genre').click(function(){
     var gen_id = $(this).attr('data-id');
-    console.log(gen_id,'===========================gen_id')
-
+    
     $.ajax({
             url:"{% url 'genre_list' %}",
             type:'POST',
@@ -197,9 +196,7 @@
                 if (response.status == true){
                   window.location.reload();
                 }
-                else{
-                  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                }
+               
             }
     })
   })

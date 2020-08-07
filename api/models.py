@@ -16,6 +16,7 @@ class UserDetail(models.Model):
 	profile_pic = models.ImageField(upload_to = 'user_image', default='noimage.jpg')
 	is_artist = models.BooleanField(default=False)
 	is_listener = models.BooleanField(default=False)
+	is_deleted = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

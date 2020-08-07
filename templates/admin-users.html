@@ -69,6 +69,7 @@
                         <td>{% if user.is_active %} Active {% else %} Inactive {% endif %}</td>
                         <td>
                         <a href="{% url 'edit_admin' user.id %}"><button class="old-btn">Edit</button></a>
+                        {% if user.is_active %}<button class="old-btn delete-admin" data-id="{{user.id}}">Delete</button> {% endif %}
                         </td>
                         <td><i class="fa fa-eye" aria-hidden="true"></i></td>
                       </tr>
@@ -158,4 +159,28 @@
 
 {% block extrascript %}
 <script src="{% static 'js/sort_table.js' %}"></script>
+
+<script type="text/javascript">
+  
+  $('.delete-admin').click(function(){
+    var user_id = $(this).attr('data-id');
+    
+    $.ajax({
+            url:"{% url 'admin_users' %}",
+            type:'POST',
+            data:{
+               'csrfmiddlewaretoken':'{{csrf_token}}',
+                'user_id':user_id,
+               
+            },
+            success: function(response) {
+                if (response.status == true){
+                  window.location.reload();
+                }
+               
+            }
+    })
+  })
+
+</script>
 {% endblock %}

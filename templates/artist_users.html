@@ -126,6 +126,9 @@
                         <th scope="col">Transaction Date</th>
                         <th scope="col">Amount</th>
                         <th scope="col">Status</th>
+                        {% if user_role == "Admin" %} 
+                        <th scope="col">Action</th>
+                        {% endif %}
                       </tr>
                     </thead>
                     <tbody>
@@ -147,6 +150,11 @@
                           <small class="text-white">on 24.05.2019</small>
                         </td>
                         <td>{% if user.user.is_active %} Active {% else %} Inactive {% endif %}</td>
+                       {% if user_role == "Admin" %} 
+                       <td>
+                        <button class="old-btn dlt-btn" data-id="{{user.id}}">Delete</button>
+                      </td>
+                      {% endif %}
                       </tr>
                       {% endfor %}
                      
@@ -235,4 +243,29 @@
 {% endblock %}
 {% block extrascript %}
 <script src="{% static 'js/sort_table.js' %}"></script>
+
+<script type="text/javascript">
+  
+  $('.dlt-btn').click(function(){
+    var user_id = $(this).attr('data-id');
+    
+    $.ajax({
+            url:"{% url 'artist_users' %}",
+            type:'POST',
+            data:{
+               'csrfmiddlewaretoken':'{{csrf_token}}',
+                'user_id':user_id,
+               
+            },
+            success: function(response) {
+                if (response.status == true){
+                  window.location.reload();
+                }
+               
+            }
+    })
+  })
+
+</script>
+
 {% endblock %}

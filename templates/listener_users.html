@@ -5,7 +5,7 @@
 {% block title %}
 <title>Listener Users</title>
 {% endblock %}
-
+{% load custom_tags %}
 {% block content %}
         <!-- Begin Page Content -->
         <div class="container-fluid">
@@ -152,6 +152,9 @@
                         <th scope="col">Label</th>
                         <th scope="col">Status</th>
                         <th scope="col">Login</th>
+                        {% if user_role == "Admin" %} 
+                         <th scope="col">Action</th>
+                         {% endif %}
                         <th scope="col">Tools</th>
                       </tr>
                     </thead>
@@ -164,10 +167,12 @@
                         </td>
                         <td>{{user.user.date_joined|date:"Y-m-d"}}</td>
                         <td>{{user.user.email}}</td>
-                        <td>{{user.user.first_name}}<br>
+                          {% get_first_name  user.user.first_name as first_name %}
+                        <td>{{first_name}}<br>
                           <small class="text-white">on {{user.user.date_joined|date:"Y-m-d"}}</small>
                         </td>
-                        <td>{{user.user.last_name}}<br>
+                         {% get_last_name  user.user.first_name as last_name %}
+                        <td>{{last_name}}<br>
                           <small class="text-white">{{ user.user.date_joined|date:"H:i" }}</small></td>
                         <td>{{user.date_of_birth|date:"Y-m-d"}}</td>
                         <td>{{user.gender}}</td>
@@ -177,7 +182,12 @@
                         <td>Listener</td>
                         <td>3:74</td>
                         <td>{% if user.user.is_active %} Active {% else %} Inactive {% endif %}</td>
-                        <td>3:74</td>
+                        <td>{{ user.user.last_login|date:"H:i" }}</td>
+                          {% if user_role == "Admin" %} 
+                       <td>
+                        <button class="old-btn dlt-btn" data-id="{{user.id}}">Delete</button>
+                      </td>
+                      {% endif %}
                         <td><i class="fa fa-eye" aria-hidden="true"></i></td>
                       </tr>
                       {% endfor %}
@@ -268,4 +278,29 @@
 
  {% block extrascript %}
 <script src="{% static 'js/sort_table.js' %}"></script>
+
+<script type="text/javascript">
+  
+  $('.dlt-btn').click(function(){
+    var user_id = $(this).attr('data-id');
+    
+    $.ajax({
+            url:"{% url 'listener_users' %}",
+            type:'POST',
+            data:{
+               'csrfmiddlewaretoken':'{{csrf_token}}',
+                'user_id':user_id,
+               
+            },
+            success: function(response) {
+                if (response.status == true){
+                  window.location.reload();
+                }
+               
+            }
+    })
+  })
+
+</script>
+
 {% endblock %}

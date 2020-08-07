@@ -51,6 +51,7 @@
                         <th scope="col"># of Followers</th>
                         <th scope="col"># of Shares</th>
                         <th scope="col"># of Tweets</th>
+                          <th scope="col">is Deleted</th>
                         <th scope="col">Action</th>
                         <th scope="col"></th>
                       </tr>
@@ -76,8 +77,13 @@
                           <div class="table-dark-td">12,000</div>
                           <small class="text-white tbl-sml">6:30 PM</small>
                         </td>
+                          <td>
+                          <div class="table-dark-td">{% if song.delete == True %} True {% else %}
+                          False {% endif %}</div>                    
+                           </td>
                         <td>
                         <a href="{% url 'edit_song' song.id %}"><button class="old-btn">Edit</button></a>
+                       {% if song.delete == False %} <button class="old-btn dlt-btn" data-id="{{song.id}}">Delete</button>{% endif %}
                         </td>
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
                       </tr>
@@ -167,4 +173,28 @@
 
 {% block extrascript %}
 <script src="{% static 'js/sort_table.js' %}"></script>
+
+<script type="text/javascript">
+  
+  $('.dlt-btn').click(function(){
+    var song_id = $(this).attr('data-id');
+    
+    $.ajax({
+            url:"{% url 'all_songs' %}",
+            type:'POST',
+            data:{
+               'csrfmiddlewaretoken':'{{csrf_token}}',
+                'song_id':song_id,
+               
+            },
+            success: function(response) {
+                if (response.status == true){
+                  window.location.reload();
+                }
+               
+            }
+    })
+  })
+
+</script>
 {% endblock %}

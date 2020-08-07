@@ -105,7 +105,7 @@ class LikeSongSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Genre	
-		fields = '__all__'	
+		fields = ["id","genre","genre_color","color_hexcode"]
 
 class AlbumSerializer(serializers.ModelSerializer):
 	class Meta:
