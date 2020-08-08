@@ -114,15 +114,15 @@
                               {% endif %}
                                {% for i in page_data.paginator.page_range %}
                                   {% if page_data.number == i %}
-                                       <li class="paginate_button page-item active"><a href="?page={{ i }}" class="page-link" style="font-size: 10px;">{{ i }}</a></li>
+                                       <li class="paginate_button page-item active"><a href="?row={{row}}&page={{ i }}" class="page-link" style="font-size: 10px;">{{ i }}</a></li>
                                   {% elif i > page_data.number|add:'-5' and i < page_data.number|add:'5' %}
-                                      <li class="paginate_button page-item"><a href="?page={{ i }}" class="page-link" style="font-size: 10px;">{{ i }}</a></li>
+                                      <li class="paginate_button page-item"><a href="?row={{row}}&page={{ i }}" class="page-link" style="font-size: 10px;">{{ i }}</a></li>
                                   {% endif %}
                               {% endfor %}
          
                                  {% if page_data.has_next %}
                                 <li class="paginate_button page-item next" id="default_order_next">
-                              <a href="?page={{ page_data.next_page_number }}"><span style="margin-left: 15px;"><i class=" fa fa-chevron-right" aria-hidden="true"></i></span></a></li>
+                              <a href="?row={{row}}&page={{ page_data.next_page_number }}"><span style="margin-left: 15px;"><i class=" fa fa-chevron-right" aria-hidden="true"></i></span></a></li>
                                {% else %}
                                 <li class="paginate_button page-item next disabled" id="default_order_next"> <a href="javascript:void(0);">  <span style="margin-left: 15px;"><i class=" fa fa-chevron-right" aria-hidden="true"></i></span></a></li>
                               {% endif %}

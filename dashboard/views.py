@@ -203,7 +203,7 @@ class AdminUsers(LoginRequiredMixin,View):
 
 		row = request.GET.get('row', 5)
 		page = request.GET.get('page', 1)
-		paginator = Paginator(users, row)
+		paginator = Paginator(users, int(row))
 		try:
 			page_data = paginator.page(page)
 		except PageNotAnInteger:
