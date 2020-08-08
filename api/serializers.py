@@ -136,7 +136,7 @@ class HideSongSerializer(serializers.ModelSerializer):
 class PlaylistSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Playlist	
-		fields = ['id','playlist','cover_image']
+		fields = ['id','user','playlist','cover_image']
 
 class PlaylistTrackSerializser(serializers.ModelSerializer):	
 	artist_name = serializers.SerializerMethodField()

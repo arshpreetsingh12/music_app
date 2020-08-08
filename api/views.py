@@ -1428,7 +1428,7 @@ class CreatePlaylistAPIView(APIView):
 	
 			except Exception as e:
 				context['success'] = False
-				context['message'] = "Something went wrong, Please try again"
+				context['message'] = str(e)
 		else:
 			context['success'] = False
 			context['message'] = "Playlist name is required."	
