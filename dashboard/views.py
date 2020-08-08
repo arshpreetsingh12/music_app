@@ -488,7 +488,7 @@ class AddNewSongs(LoginRequiredMixin,View):
 
 	def get(self,request):
 		song_active = "active"
-		all_artist = UserDetail.objects.filter(is_artist = True)
+		all_artist = UserDetail.objects.filter(is_artist = True,is_deleted = False)
 		return render(request,self.template_name,locals())
 
 	def post(self, request):
@@ -527,7 +527,7 @@ class EditSongs(LoginRequiredMixin,View):
 
 	def get(self,request,song_id):
 		song_active = "active"
-		all_artist = UserDetail.objects.filter(is_artist = True)
+		all_artist = UserDetail.objects.filter(is_artist = True,is_deleted = False)
 		song = Song.objects.get(pk = song_id)
 		return render(request,self.template_name,locals())
 
@@ -572,13 +572,13 @@ class AllAlbums(LoginRequiredMixin,View):
 	def get(self,request):
 		try:
 			if request.user.is_superuser or request.user.is_staff:
-				all_albums = Album.objects.all()
+				all_albums = Album.objects.filter(is_deleted = False)
 			else:
 				user = UserDetail.objects.get(user_id = request.user.id)
 				if user.is_artist:
-					all_albums = Album.objects.filter(artist = user)
+					all_albums = Album.objects.filter(artist = user,is_deleted = False)
 				else:
-					all_albums = Album.objects.all()
+					all_albums = Album.objects.filter(is_deleted = False)
 		except Exception as e:
 			pass
 		return render(request,self.template_name,locals())	
@@ -591,12 +591,13 @@ class AddAlbum(LoginRequiredMixin,View):
 
 	def get(self,request):
 		album_active = "active"
-		all_artist = UserDetail.objects.filter(is_artist = True)
+		all_artist = UserDetail.objects.filter(is_artist = True,is_deleted = False)
 		if request.user.is_superuser or request.user.is_staff:
 			songs = Song.objects.filter(delete = False)
 		else:
 			current_user = UserDetail.objects.get(user_id = request.user.id)
 			songs = Song.objects.filter(user = current_user, delete = False)
+
 		return render(request,self.template_name,locals())
 
 	def post(self, request):
@@ -647,11 +648,45 @@ class ViewAlbum(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'view-album.html'
 
-	def get(self,request,album_id):
-		album = Album.objects.filter(pk = album_id).last()
-		all_artist = UserDetail.objects.filter(is_artist = True)
-		songs = Song.objects.all()
+	def get(self,request):
+		all_albums = ''
+		try:
+			if request.user.is_superuser or request.user.is_staff:
+				all_albums = Album.objects.filter(is_deleted = False)
+			else:
+				user = UserDetail.objects.get(user_id = request.user.id)
+				if user.is_artist:
+					all_albums = Album.objects.filter(artist = user,is_deleted = False)
+				else:
+					all_albums = Album.objects.filter(is_deleted = False)
+		except Exception as e:
+			pass
+
+		row = request.GET.get('row', 5)
+		page = request.GET.get('page', 1)
+		paginator = Paginator(all_albums, row)
+		try:
+			page_data = paginator.page(page)
+		except PageNotAnInteger:
+			page_data = paginator.page(1)
+		except EmptyPage:
+			page_data = paginator.page(paginator.num_pages)
 		return render(request,self.template_name,locals())
+
+
+####### delete album ###############	
+	def post(self,request):
+		response = {}
+		album_id = request.POST.get('album_id')
+
+		try:
+			album_obj = Album.objects.get(pk = album_id)
+			album_obj.is_deleted = True
+			album_obj.save()
+			response['status'] = True
+		except Exception as e:
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
 
 """ Edit Album """
 class EditAlbum(LoginRequiredMixin,View):
@@ -661,12 +696,12 @@ class EditAlbum(LoginRequiredMixin,View):
 	def get(self,request,album_id):
 		try:
 			album = Album.objects.get(pk = album_id)
-			all_artist = UserDetail.objects.filter(is_artist = True)
+			all_artist = UserDetail.objects.filter(is_artist = True,is_deleted = False)
 			if request.user.is_superuser or request.user.is_staff:
-				songs = Song.objects.all()
+				songs = Song.objects.filter(delete = False)
 			else:
 				current_user = UserDetail.objects.get(user_id = request.user.id)
-				songs = Song.objects.filter(user = current_user)
+				songs = Song.objects.filter(user = current_user, delete = False	)
 		except Exception as e:
 			pass		
 		return render(request,self.template_name,locals())
@@ -724,6 +759,7 @@ class EditAlbum(LoginRequiredMixin,View):
 			return HttpResponseRedirect('/dashboard/edit-album/' + str(album_id))
 
 
+
 """ Financial """
 class Financial(LoginRequiredMixin,View):
 	login_url = 'web_login'
@@ -740,8 +776,8 @@ class AddNewPlaylist(LoginRequiredMixin,View):
 
 	def get(self,request):
 		playlist_active = "active"
-		artist_user = UserDetail.objects.filter(is_artist = True)
-		songs = Song.objects.all()
+		artist_user = UserDetail.objects.filter(is_artist = True,is_deleted = False)
+		songs = Song.objects.filter(delete = False)
 		return render(request,self.template_name,locals())
 
 	def post(self,request):
@@ -787,7 +823,10 @@ class AllPlayList(LoginRequiredMixin,View):
 
 	def get(self,request):
 		playlist_active = "active"
-		playlists = Playlist.objects.all()
+		if request.user.is_staff or request.user.is_superuser:
+			playlists = Playlist.objects.filter(is_deleted = False)
+		else:
+			playlists = Playlist.objects.filter(is_deleted = False, user = request.user)
 		return render(request,self.template_name,locals())
 
 
@@ -799,8 +838,8 @@ class EditPlayList(LoginRequiredMixin,View):
 	def get(self,request,playlist_id):
 		playlist_active = "active"
 		playlist_data = Playlist.objects.get(pk = playlist_id)
-		artist_user = UserDetail.objects.filter(is_artist = True)
-		songs = Song.objects.all()
+		artist_user = UserDetail.objects.filter(is_artist = True,is_deleted = False)
+		songs = Song.objects.filter(delete = False)
 		return render(request,self.template_name,locals())
 
 	def post(self,request,playlist_id):
@@ -812,7 +851,7 @@ class EditPlayList(LoginRequiredMixin,View):
 		playlist_length = request.POST.get('album_length')
 
 		try:
-			artist_info = ArtistInfo.objects.get(info_id = artist)
+			artist_info = ArtistInfo.objects.get(info_id = artist,is_deleted = False)
 			edit_play_list = Playlist.objects.get(pk = playlist_id)
 
 			if title:
@@ -850,8 +889,22 @@ class EditPlayList(LoginRequiredMixin,View):
 			return HttpResponseRedirect('/dashboard/edit-playlist/' + str(playlist_id))
 
 
+class DeletePlaylist(LoginRequiredMixin,View):
+	login_url = 'web_login'
 
-""" Add New Playlist """
+	def post(self,request):
+		response = {}
+		playlist_id = request.POST.get('playlist_id')
+		try:
+			playlist_obj = Playlist.objects.get(pk = playlist_id)
+			playlist_obj.is_deleted = True
+			playlist_obj.save()
+			response['status'] = True
+		except Exception as e:
+			response['status'] = False
+		return HttpResponse(json.dumps(response),content_type="application/json")
+
+""" Add PromostionView """
 class PromostionView(LoginRequiredMixin,View):
 	login_url = 'web_login'
 	template_name = 'promostion.html'

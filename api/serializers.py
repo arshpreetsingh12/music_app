@@ -97,6 +97,21 @@ class LikeArtistSerializer(serializers.ModelSerializer):
 		return instance.artist.info.profile_pic.url
 
 
+class HiddenArtistSerializer(serializers.ModelSerializer):
+	name = serializers.SerializerMethodField()
+	image = serializers.SerializerMethodField()
+
+	class Meta:
+		model = ArtistInfo
+		fields = ['id', 'name', 'image']
+
+	def get_name(self, instance):
+		return instance.artist.info.user.first_name
+
+	def get_image(self, instance):
+		return instance.artist.info.profile_pic.url
+
+
 class LikeSongSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = LikeSong	
@@ -121,13 +136,36 @@ class HideSongSerializer(serializers.ModelSerializer):
 class PlaylistSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Playlist	
-		fields = '__all__'
+		fields = ['id','playlist','cover_image']
 
-class PlaylistTrackSerializser(serializers.ModelSerializer):
-	
+class PlaylistTrackSerializser(serializers.ModelSerializer):	
+	artist_name = serializers.SerializerMethodField()
+	song_title = serializers.SerializerMethodField()
+	song_length = serializers.SerializerMethodField()
+	song_image = serializers.SerializerMethodField()
+	song_mp3 = serializers.SerializerMethodField()
+
 	class Meta:
-		model = PlaylistTrack
-		fields = '__all__'		
+		model = Song
+		fields = ['id','artist_name', 'song_title', 'song_length','song_image','song_mp3']
+
+	def get_artist_name(self, instance):
+		return instance.song.user.user.first_name
+
+	def get_song_title(self, instance):
+		return instance.song.song_title
+
+	def get_song_length(self, instance):
+		return instance.song.song_length
+
+	def get_song_image(self, instance):
+		if instance.song.song_image:
+			return instance.song.song_image.url
+		else:
+			return '/media/noimage.jpg'
+
+	def get_song_mp3(self, instance):
+		return instance.song.song_mp3.url
 
 
 class FollowUserSerializser(serializers.ModelSerializer):

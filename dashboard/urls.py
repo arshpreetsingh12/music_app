@@ -41,7 +41,7 @@ urlpatterns = [
 	########## albums related urls  ########
 	path('all-albums/', AllAlbums.as_view(), name = "all_albums"),
 	path('add-album/', AddAlbum.as_view(), name = "add_album"),
-	path('view-album/<int:album_id>/', ViewAlbum.as_view(), name = "view_album"),
+	path('view-album/', ViewAlbum.as_view(), name = "view_album"),
 	path('edit-album/<int:album_id>/', EditAlbum.as_view(), name = "edit_album"),
 	
 
@@ -49,6 +49,7 @@ urlpatterns = [
 	path('all-playlist/', AllPlayList.as_view(), name = "all_playlist"),
 	path('add-new-playlist/', AddNewPlaylist.as_view(), name = "add_new_playlist"),
 	path('edit-playlist/<int:playlist_id>/', EditPlayList.as_view(), name = "edit_playlist"),
+	path('delete-playlist/', DeletePlaylist.as_view(), name = "delete_playlist"),
 
 
 	########## other urls  ############

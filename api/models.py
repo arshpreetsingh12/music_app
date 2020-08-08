@@ -105,6 +105,17 @@ class LikeArtist(models.Model):
 	def __str__(self):
 		return self.user.first_name
 
+""" When user like any artist that object saved in this table """
+class HiddenArtist(models.Model):
+	user = models.ForeignKey(User, related_name='request_user', on_delete=models.CASCADE)
+	artist = models.ForeignKey(ArtistInfo, related_name='hidden_artist', null= True, blank = True, on_delete=models.CASCADE)
+	hidden = models.BooleanField(default=False)
+	created_at  = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.user.first_name
+
 """ When user like any song that object saved in this table """
 class LikeSong(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -131,6 +142,7 @@ class Playlist(models.Model):
 	Playlist_length = models.CharField(max_length=50, null = True, blank = True)
 	cover_image = models.FileField(upload_to = 'play_list', null = True, blank = True)
 	description = models.TextField(max_length=1000, null = True, blank = True)
+	is_deleted = models.BooleanField(default=False)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

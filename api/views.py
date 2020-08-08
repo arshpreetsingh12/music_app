@@ -617,7 +617,7 @@ class AllArtist(APIView):
 
 		except Exception as e:
 			context['success'] = False
-			context['message'] = 'Something went wrong '
+			context['message'] = str(e)	
 
 		return Response(context)
 
@@ -644,7 +644,7 @@ class ArtistDetail(APIView):
 
 		except Exception as e:
 			context['status'] = False
-			context['message'] = 'Something went wrong '+str(e)
+			context['message'] = str(e)
 		return Response(context)
 
 
@@ -798,8 +798,8 @@ class SongsOfLikedArtistAPIView(APIView):
 		user_id = request.user.id
 		try:
 			liked_artist_qs = LikeArtist.objects.filter(user_id=user_id)
-			liked_artist_ids = [artist.artist_id for artist in liked_artist_qs]
-			qs = Song.objects.filter(album__artist_id__in=liked_artist_ids,delete = False)
+			liked_artist_ids = [artist.artist.info.id for artist in liked_artist_qs]
+			qs = Song.objects.filter(user_id__in=liked_artist_ids,delete = False)
 			if not qs:
 				context['success'] = True
 				context['data'] = "Songs not found."		
@@ -811,8 +811,82 @@ class SongsOfLikedArtistAPIView(APIView):
 		except Exception as e:
 			context['success'] = False
 			context['message'] = 'Something went wrong'		
-		return Response(context)					
+		return Response(context)	
+
+
+
+class HideArtistApi(APIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request):
+		context = {}
+		user_id = request.user.id
+		try:
+			qs = HiddenArtist.objects.filter(user_id=user_id, hidden = True)
+			if not qs:
+				context['success'] = True
+				context['data'] = "Hidden artist not found."		
+				return Response(context)
+			serializer = HiddenArtistSerializer(qs, many=True)
+			context['success'] = True
+			context['data'] = serializer.data		
+		except Exception as e:
+			context['success'] = False
+			context['message'] = 'Something went wrong'		
+		return Response(context)	
 	
+	def post(self, request):
+		context = {}
+		artist_id= request.data.get('artist_id')
+		try:
+			if artist_id:
+				artist_obj = ArtistInfo.objects.get(pk = artist_id, info__is_deleted = False, info__is_artist = True)
+				hide_artist,created = HiddenArtist.objects.get_or_create(user_id = request.user.id,artist = artist_obj, hidden = True)
+				context['success'] = True
+				context['message'] = 'Artist successfully hidden.'
+
+			else:
+				context['success'] = False
+				context['error'] = 'Artist id is required.'
+
+		except ArtistInfo.DoesNotExist:
+			context['success'] = False
+			context['error'] = 'Invalid artist id.'
+
+		except Exception as e:
+			context['success'] = False
+			context['error'] = str(e)
+		return Response(context)
+
+
+"""
+	This view for hidden artist's songs.
+										"""
+class SongsOfHiddenArtist(APIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = [IsAuthenticated]
+	def get(self, request):
+		context = {}
+		user_id = request.user.id
+		try:
+			hidden_artist_qs = HiddenArtist.objects.filter(user_id=user_id)
+			hidden_artist_ids = [artist.artist.info.id for artist in hidden_artist_qs]
+			qs = Song.objects.filter(user_id__in = hidden_artist_ids,delete = False)
+			if not qs:
+				context['success'] = True
+				context['data'] = "Songs not found."		
+				return Response(context)
+			serializer = SongSerializer(qs, many=True)
+			context['success'] = True
+			context['data'] = serializer.data		
+	
+		except Exception as e:
+			context['success'] = False
+			context['message'] = str(e)			
+		return Response(context)	
+
+
 """
 	This view for Like song.
 	Logged in user can like any song.
@@ -835,7 +909,7 @@ class LikeSongAPIView(APIView):
 			context['data'] = serializer.data		
 		except Exception as e:
 			context['success'] = False
-			context['message'] = 'Something went wrong'		
+			context['message'] = str(e)		
 		return Response(context)
 
 
@@ -866,7 +940,7 @@ class LikeSongAPIView(APIView):
 
 		except Exception as e:
 			context['success'] = False
-			context['message'] = 'Something went wrong'		
+			context['message'] = str(e)	
 		return Response(context)
 
 """
@@ -897,7 +971,7 @@ class AddAlbumAPIView(APIView):
 			context['data'] = serializer.data	
 		except Exception as e:
 			context['success'] = False
-			context['message'] = 'Something went wrong'		
+			context['message'] = str(e)	
 		return Response(context)
 
 	def post(self, request):
@@ -1320,7 +1394,7 @@ class CreatePlaylistAPIView(APIView):
 	def get(self, request):
 		context = {}
 		try:
-			qs = Playlist.objects.filter(user_id=request.user.id)
+			qs = Playlist.objects.filter(user_id=request.user.id,is_deleted = False)
 			if qs:
 				serializer = PlaylistSerializer(qs, many=True)
 				context['success'] = True
@@ -1407,16 +1481,16 @@ class ListSongsByPlaylistAPIView(APIView):
 	authentication_classes = (TokenAuthentication,)
 	permission_classes = [IsAuthenticated]
 
-	def post(self, request):
+	def get(self, request,playlist_id):
 		context = {}
-		playlist_id = request.data.get('playlist_id')
-		if not playlist_id:
-			context['success'] = False
-			context['message'] = "Playlist id is required."	
-			return Response(context)
-
+		song_name = request.GET.get('song_name')
 		try:
-			qs = PlaylistTrack.objects.filter(playlist_id=playlist_id)
+			if song_name:
+				searched_song = re.sub("\s+$","",song_name.lstrip())
+				qs = PlaylistTrack.objects.filter(playlist_id=playlist_id,song__song_title__icontains = searched_song,playlist__is_deleted = False)
+			
+			else:
+				qs = PlaylistTrack.objects.filter(playlist_id=playlist_id,playlist__is_deleted = False)
 			if not qs:
 				context['success'] = True
 				context['message'] = "Playlist not found."	

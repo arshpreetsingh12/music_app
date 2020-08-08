@@ -60,9 +60,14 @@ urlpatterns = [
 
     path('like-song', LikeSongAPIView.as_view()),
     path('hide-song', HideSongAPIView.as_view()),
+    path('hidden-artist', HideArtistApi.as_view()),
+
+    path('hidden-artist-song', SongsOfHiddenArtist.as_view()),
+
+
     path('create-playlist', CreatePlaylistAPIView.as_view()),
     path('song-to-playlist', PlaylistTrackAPIView.as_view()),
-    path('songs-by-playlist', ListSongsByPlaylistAPIView.as_view()),
+    path('create-playlist/<int:playlist_id>', ListSongsByPlaylistAPIView.as_view()),
 
     path('user-list', UserList.as_view()),
     path('my-follower', MyFollowerList.as_view()),

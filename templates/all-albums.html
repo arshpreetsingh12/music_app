@@ -18,8 +18,9 @@
           <!-- Content Row -->
 
           <div class="row">
-
+           
            <div class="row play__list m-3 p-3">
+             {% if all_albums %}
             {% for album in all_albums %}
              <div class="playlist_box">
                <div class="playlist_raper_img">
@@ -33,10 +34,14 @@
                  </div>
                  {% endif %}
                </div>
+               
              </div>
              {% endfor %}
-             
-           
+              {% else %}
+             <div>
+             <center style="color: white;">No albums</center>
+             </div>
+           {% endif %}
             
           </div>
 

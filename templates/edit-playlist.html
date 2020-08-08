@@ -110,6 +110,7 @@
                   <div class="px-3 text-right py-5">
                       <button class="btn primary-btn mr-2 cancel-btn" type="button">cancel</button>
                       <button class="btn secondary-btn add-playlist" type="submit">update</button>
+                      <button class="btn secondary-btn dlt-playlist" type="button" data-id="{{playlist_data.id}}">delete</button>
                   </div>
 
                 </div>
@@ -188,6 +189,28 @@ $('.add-playlist').click(function(){
 
     return submit;
 });
+
+  $('.dlt-playlist').click(function(){
+    var playlist_id = $(this).attr('data-id');
+    
+    $.ajax({
+            url:"{% url 'delete_playlist' %}",
+            type:'POST',
+            data:{
+               'csrfmiddlewaretoken':'{{csrf_token}}',
+                'playlist_id':playlist_id,
+               
+            },
+            success: function(response) {
+                if (response.status == true){
+                  window.location = "{% url 'all_playlist' %}"
+                }
+               
+            }
+    })
+  })
+
+
  $(function () {
     $('.selectpicker2').selectpicker();
 });

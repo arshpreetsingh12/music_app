@@ -19,7 +19,7 @@
           <!-- Content Row -->
 
           <div class="row">
-
+            {% if playlists %}
            <div class="row play__list m-3 p-3">
             {% for list in playlists %}
              <div class="playlist_box">
@@ -39,7 +39,11 @@
                <h3>Various Artist</h3> -->
              </div>
              {% endfor %}
-           
+           {% else %}
+             <div style="margin-left: 100px;">
+             <center style="color: white;">No Playlist Found</center>
+             </div>
+           {% endif %}
            </div>
            
             

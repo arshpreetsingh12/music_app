@@ -15,6 +15,6 @@ admin.site.register(LikeArtist)
 admin.site.register(Follwer)
 admin.site.register(ArtistInfo)
 admin.site.register(Country)
-# admin.site.register(AlbumSongs)
+admin.site.register(HiddenArtist)
 admin.site.register(ForgetPassword)
 
