@@ -1128,7 +1128,7 @@ class AlbumDetail(APIView):
 
 		except Exception as e:
 			context['status'] = False
-			context['message'] = "Invalid album id."
+			context['message'] = str(e)
 		return Response(context)
 
 """
