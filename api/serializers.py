@@ -138,6 +138,12 @@ class PlaylistSerializer(serializers.ModelSerializer):
 		model = Playlist	
 		fields = ['id','user','playlist','cover_image']
 
+class AddPlaylistTrack(serializers.ModelSerializer):
+	
+	class Meta:
+		model = PlaylistTrack
+		fields = '__all__'
+
 class PlaylistTrackSerializser(serializers.ModelSerializer):	
 	artist_name = serializers.SerializerMethodField()
 	song_title = serializers.SerializerMethodField()

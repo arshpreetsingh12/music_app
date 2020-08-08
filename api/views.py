@@ -1459,7 +1459,7 @@ class PlaylistTrackAPIView(APIView):
 		}		 
 
 		try:
-			serializer = PlaylistTrackSerializser(data=data)
+			serializer = AddPlaylistTrack(data=data)
 			if serializer.is_valid():
 				serializer.save()
 				context['success'] = True
@@ -1469,7 +1469,7 @@ class PlaylistTrackAPIView(APIView):
 				context['error'] = serializer.errors	
 		except Exception as e:
 			context['success'] = False
-			context['message'] = "Something went wrong, Please try again"	
+			context['message'] = str(e)
 		return Response(context)
 
 """
@@ -1493,7 +1493,7 @@ class ListSongsByPlaylistAPIView(APIView):
 				qs = PlaylistTrack.objects.filter(playlist_id=playlist_id,playlist__is_deleted = False)
 			if not qs:
 				context['success'] = True
-				context['message'] = "Playlist not found."	
+				context['message'] = "Songs not found."	
 				return Response(context)
 
 			serializer = PlaylistTrackSerializser(qs, many=True)
