@@ -976,7 +976,6 @@ class AddAlbumAPIView(APIView):
 
 	def post(self, request):
 		context = {}
-		artist_id = request.data.get('artist_id')
 		album_name = request.data.get('album_name')
 		album_pic = request.data.get('album_pic')
 		fb_url = request.data.get('fb_url')
