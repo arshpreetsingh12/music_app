@@ -79,7 +79,7 @@ class AllArtistDataSerializer(serializers.ModelSerializer):
 class SongSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Song
-		fields = ['user','genre','song_title','song_length','song_image','song_mp3','delete','description']	
+		fields = ['id','user','genre','song_title','song_length','song_image','song_mp3','description']	
 
 
 class LikeArtistSerializer(serializers.ModelSerializer):
