@@ -17,4 +17,5 @@ admin.site.register(ArtistInfo)
 admin.site.register(Country)
 admin.site.register(HiddenArtist)
 admin.site.register(ForgetPassword)
+admin.site.register(SocialMedia)
 

@@ -23,7 +23,7 @@ class RegisterAPIView(APIView):
 	authentication_classes = ()
 	def post(self, request):
 		context = {}
-
+		username = request.data.get('username')
 		data = {
 			'first_name': request.data.get('first_name'),
 			'username': request.data.get('username'),
@@ -40,13 +40,13 @@ class RegisterAPIView(APIView):
 				date_of_birth = request.data.get('date_of_birth')
 				is_artist = request.data.get('is_artist')
 				is_listener = request.data.get('is_listener')
-				# artist_id = request.data.get('artist_id')
 				profile_pic = request.data.get('profile_pic')
 				country = request.data.get('country_id')
 				website = request.data.get('website')
 				company_label = request.data.get('company_label')
-				social_media = request.data.get('social_media')
 				genre_id = request.data.get('genre_id')
+				social_media = request.data.get('social_media')
+				# link = request.data.get('link')
 
 				if not gender:
 					user.delete()
@@ -87,11 +87,11 @@ class RegisterAPIView(APIView):
 						context['message'] = 'Please enter your company label'
 						return Response(context) 
 
-					if not social_media:
-						user.delete()
-						context['success'] = False
-						context['message'] = 'Please enter your social media link.'
-						return Response(context) 
+					# if not social_media:
+					# 	user.delete()
+					# 	context['success'] = False
+					# 	context['message'] = 'Please enter your social media link.'
+					# 	return Response(context) 
 
 					if not genre_id:
 						user.delete()
@@ -158,26 +158,40 @@ class RegisterAPIView(APIView):
 						context['message'] = 'Invalid country id.'
 						return Response(context) 
 
-				if country_obj and website and company_label and genre_obj and social_media and user_detail.is_artist == True:
+				if country_obj and website and company_label and genre_obj and user_detail.is_artist == True:
 					artist_info = ArtistInfo(
 						info = user_detail,
 						website = website,
 						company_label = company_label,
-						social_media = social_media,
 						genre = genre_obj,
 						country = country_obj
 						)
 					artist_info.save()
-
-				# if artists and user_detail.is_listener:
-				# 	for art in artists:
-				# 		LikeArtist.objects.create(
-				# 			user = user,
-				# 			artist_id = art,
-				# 			like = True		
-				# 			)
-				context['success'] = True
-				context['message'] = 'You signed up successfully.'
+				      
+				if social_media:
+					if len(social_media)>0:
+						for media in social_media:
+							print(media,'')
+							link_data = {
+							'user_info':user_detail.id,
+							'link_type':media['link_type'],
+							'link': media['link']
+							}
+							link_searial = ArtistSocialData(data = link_data)
+							if link_searial.is_valid():	  
+								link_searial.save()
+								context['success'] = True
+								context['message'] = 'You signed up successfully.'
+							else:
+								context['success'] = False
+								context['error'] = 	link_searial.errors
+								User.objects.filter(username=username).delete()
+								UserDetail.objects.filter(pk = user_detail.id).delete()
+								ArtistInfo.objects.filter(pk = artist_info.id).delete()
+								return Response(context)
+				else:
+					context['success'] = True
+					context['message'] = 'You signed up successfully.'
 
 		else:
 			context['success'] = False
@@ -295,7 +309,6 @@ class LoginAPIView(ObtainAuthToken):
 					social_media = {
 						'website':user_obj.artistinfo.website,
 						'company_label':user_obj.artistinfo.company_label,
-						'social_media':user_obj.artistinfo.social_media,
 					}
 					context['social_media'] = social_media	
 				context['message'] = 'Successfully login.'
@@ -355,7 +368,6 @@ class EditUserAPIView(APIView):
 		profile_pic = request.data.get('profile_pic')
 		website =  request.data.get('website')
 		company_label = request.data.get('company_label')
-		social_media = request.data.get('social_media')
 		country = request.data.get('country')
 		genre = request.data.get('genre')
 
@@ -375,8 +387,7 @@ class EditUserAPIView(APIView):
 					updateart.website = website
 				if company_label:
 					updateart.company_label = company_label
-				if social_media:
-					updateart.social_media = social_media
+
 				if country:
 					try:
 						country_obj = Country.objects.get(pk = country)
@@ -1660,7 +1671,6 @@ class ValidateToken(APIView):
 					social_media = {
 						'website':user_obj.artistinfo.website,
 						'company_label':user_obj.artistinfo.company_label,
-						'social_media':user_obj.artistinfo.social_media,
 					}
 					context['social_media'] = social_media
 

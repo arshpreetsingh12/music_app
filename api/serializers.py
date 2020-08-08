@@ -55,7 +55,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class ArtistInfoSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ArtistInfo
-		fields = ['info','genre','country','website','company_label','social_media']
+		fields = ['info','genre','country','website','company_label']
+
+
+class ArtistSocialData(serializers.ModelSerializer):
+	class Meta:
+		model = SocialMedia
+		fields = ['id','user_info','link_type','link']
+
+		
 
 class AllArtistDataSerializer(serializers.ModelSerializer):
 	name = serializers.SerializerMethodField()

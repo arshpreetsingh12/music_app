@@ -52,13 +52,22 @@ class ArtistInfo(models.Model):
 	country = models.ForeignKey(Country, on_delete=models.CASCADE, null = True, blank = True)
 	website = models.CharField(max_length=250)
 	company_label = models.CharField(max_length=500)
-	social_media = models.CharField(max_length=500)
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return self.info.user.first_name
 
+LINK_TYPE = (('fb', 'fb'),('insta', 'insta'),('twitter', 'twitter'))
+""" This table for artist's social media details. """
+class SocialMedia(models.Model):
+	user_info = models.ForeignKey(UserDetail, on_delete=models.CASCADE)
+	link_type = models.CharField(max_length=50, choices=LINK_TYPE, default = 'fb')
+	link = models.URLField(max_length=500, null = True, blank = True)
+	is_deleted = models.BooleanField(default=False)
+
+	def __str__(self):
+		return self.user_info.user.first_name
 		
 """ When uploader upload any song that object saved in this table """
 class Song(models.Model):
