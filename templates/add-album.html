@@ -54,7 +54,7 @@
                         <select class="form-control artist" id="exampleFormControlSelect1" name="artist">
                           <option selected disabled>Select Artist</option>
                         {% for artist in all_artist %}
-                            <option value="{{artist.id}}">{{artist.user.first_name}}</option>
+                            <option value="{{artist.id}}" {% if current_user %} {% if current_user.id == artist.id %} selected {% endif %} {% endif %}>{{artist.user.first_name}}</option>
                            
                         {% endfor %}
                       </select>
