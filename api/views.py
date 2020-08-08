@@ -488,7 +488,7 @@ class SongsAPIView(APIView):
 
 		if not genre_id or not song_title or not song_mp3 or not song_length:
 			context['success'] = False
-			context['message'] = 'song_title, genre_id, song_mp3, song_length and artist_id are required fields.'
+			context['message'] = 'song_title, genre_id, song_mp3, song_length are required fields.'
 			return Response(context)
 
 		try:
