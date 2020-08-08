@@ -306,6 +306,13 @@ class LoginAPIView(ObtainAuthToken):
 					context['other_data'] = other_data
 
 				if user_obj.is_artist:
+					social_media_links = SocialMedia.objects.filter(user_info = user_obj)
+					if social_media_links:
+						social_data = ArtistSocialData(social_media_links, many = True)
+						links = {
+							'social_media_links':social_data.data
+						}
+						context['social_media_links'] = links
 					social_media = {
 						'website':user_obj.artistinfo.website,
 						'company_label':user_obj.artistinfo.company_label,

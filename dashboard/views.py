@@ -449,7 +449,7 @@ class AllSongs(LoginRequiredMixin,View):
 				if user.is_artist:
 					all_song = Song.objects.filter(user = user)
 				else:
-					all_song = Song.objects.all()
+					all_song = Song.objects.filter(delete = False)
 		except Exception as e:
 			pass
 		

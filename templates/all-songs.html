@@ -52,7 +52,9 @@
                         <th scope="col"># of Shares</th>
                         <th scope="col"># of Tweets</th>
                           <th scope="col">is Deleted</th>
-                        <th scope="col">Action</th>
+                          {% if not user_role == "Listener" %}                       
+                          <th scope="col">Action</th>
+                        {% endif %}
                         <th scope="col"></th>
                       </tr>
                     </thead>
@@ -81,10 +83,12 @@
                           <div class="table-dark-td">{% if song.delete == True %} True {% else %}
                           False {% endif %}</div>                    
                            </td>
+                           {% if not user_role == "Listener" %}
                         <td>
                         <a href="{% url 'edit_song' song.id %}"><button class="old-btn">Edit</button></a>
                        {% if song.delete == False %} <button class="old-btn dlt-btn" data-id="{{song.id}}">Delete</button>{% endif %}
                         </td>
+                        {% endif %}
                         <td class="tri-dot"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></td>
                       </tr>
                       {% endfor %}
